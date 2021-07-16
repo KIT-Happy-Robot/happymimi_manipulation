@@ -152,9 +152,9 @@ class JointController(MotorController):
         self.callMotorService(5, step)
     
     
-class ArmPoseChanger(JointController):
+class ManipulateArm(JointController):
     def __init__(self):
-        super(ArmPoseChanger,self).__init__()
+        super(ManipulateArm,self).__init__()
         #rospy.Service('/servo/debug_arm', , self.manipulateByInverseKinematics)
         rospy.Service('/servo/arm', ManipulateSrv, self.changeArmPose)
         self.detect_depth = rospy.ServiceProxy('/detect/depth', DetectDepth)
@@ -294,5 +294,5 @@ class ArmPoseChanger(JointController):
         
 if __name__ == '__main__':
     rospy.init_node('motor_controller')
-    experiment = ArmPoseChanger()
+    experiment = ManipulateArm()
     rospy.spin()
