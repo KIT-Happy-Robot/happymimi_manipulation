@@ -71,7 +71,7 @@ add_action_files(
   GraspingExecutor.action
 )
 
-Generate added messages and services with any dependencies listed here
+##Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
   actionlib_msgs
