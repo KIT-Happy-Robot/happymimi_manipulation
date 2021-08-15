@@ -13,12 +13,12 @@ from dynamixel_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 # -- Custom Message --
-from mimi_manipulation_pkg.srv import ManipulateSrv
-from mimi_manipulation_pkg.msg import *
+from happymimi_manipulation_msgs.srv import ManipulateArm
+from happymimi_manipulation_msgs.msg import *
 
-from motor_controller import ArmPoseChanger
+from motor_controller import ManipulateArm
 
-class ObjectGrasper(ArmPoseChanger):
+class ObjectGrasper(ManipulateArm):
     def __init__(self):
         super(ObjectGrasper,self).__init__()
         rospy.Subscriber('/current_location',String,self.navigationPlaceCB)
@@ -139,18 +139,18 @@ class ObjectGrasper(ArmPoseChanger):
         self.preempt_flg = True
 
     def actionMain(self,object_centroid):
-        target_centroid = object_centroid.grasp_goal
+        target_centroid = object_centroid.goal
         grasp_result = ObjectGrasperResult()
         grasp_flg = False
         approach_flg = self.approachObject(target_centroid)
         if approach_flg:
             grasp_flg = self.graspObject(target_centroid)
-        grasp_result.grasp_result = grasp_flg
+        grasp_result.result = grasp_flg
         self.act.set_succeeded(grasp_result)
 
 
 if __name__ == '__main__':
-    rospy.init_node('object_grasper')
+    rospy.init_node('grasping_action')
     grasper = ObjectGrasper()
     grasper.startUp()
     rospy.spin()
