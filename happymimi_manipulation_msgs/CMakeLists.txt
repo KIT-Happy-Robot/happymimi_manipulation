@@ -68,7 +68,7 @@ add_action_files(
   DIRECTORY
   action
   FILES
-  GraspingExecutor.action
+  GraspingObject.action
 )
 
 ##Generate added messages and services with any dependencies listed here
