@@ -12,7 +12,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from dynamixel_workbench_msgs.msg import DynamixelStateList
 from dynamixel_workbench_msgs.srv import DynamixelCommand
 # -- Custom Message -- 
-from happymimi_manipulation_msgs.srv import ManipulateArm
+from happymimi_msgs.srv import StrTrg
 from happymimi_recognition_msgs.srv import PositionEstimator
 
 class MotorController(object):
@@ -157,7 +157,7 @@ class ManipulateArm(JointController):
     def __init__(self):
         super(ManipulateArm,self).__init__()
         #rospy.Service('/servo/debug_arm', , self.manipulateByInverseKinematics)
-        rospy.Service('/servo/arm', ManipulateArm, self.changeArmPose)
+        rospy.Service('/servo/arm', StrTrg, self.changeArmPose)
         self.detect_depth = rospy.ServiceProxy('/detect/depth', PositionEstimator)
         self.arm_specification = rosparam.get_param('/mimi_specification')
 

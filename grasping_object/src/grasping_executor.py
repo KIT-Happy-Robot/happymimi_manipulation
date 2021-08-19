@@ -13,7 +13,7 @@ from dynamixel_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 # -- Custom Message --
-from happymimi_manipulation_msgs.srv import ManipulateArm
+from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
 
 from motor_controller import ManipulateArm

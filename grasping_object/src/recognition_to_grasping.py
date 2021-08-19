@@ -6,7 +6,7 @@ import actionlib
 from enum import Enum
 from std_msgs.msg import Bool, String, Float64
 # -- Custom Message --
-from happymimi_manipulation_msgs.srv import ManipulateArm
+from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
 from happymimi_recognition_msgs.msg import *
 
@@ -101,6 +101,6 @@ def actionMain(req):
 if __name__ == '__main__':
     rospy.init_node('manipulation_master')
     
-    rospy.Service('/recognition_to_grasping',ManipulateArm, actionMain)
+    rospy.Service('/recognition_to_grasping',StrTrg, actionMain)
     
     rospy.spin()
