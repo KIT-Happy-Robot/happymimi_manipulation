@@ -3,6 +3,7 @@
 
 import rospy
 import rosparam
+import sys
 import time
 import math
 import numpy
@@ -16,15 +17,16 @@ from geometry_msgs.msg import Point
 from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
 
+sys.path.insert(0, '/home/tatsuhito/catkin_ws/src/happymimi_manipulation/dynamixel_controller/src/'
 from motor_controller import ManipulateArm
 
-class ObjectGrasper(ManipulateArm):
+class GraspingActionServer(ManipulateArm):
     def __init__(self):
-        super(ObjectGrasper,self).__init__()
+        super(GraspingActionServer,self).__init__()
         rospy.Subscriber('/current_location',String,self.navigationPlaceCB)
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel_mux/input/teleop',Twist,queue_size = 1)
         self.act = actionlib.SimpleActionServer('/manipulation/grasp',
-                                                ObjectGrasperAction,
+                                                GraspingObjectAction,
                                                 execute_cb = self.actionMain,
                                                 auto_start = False)
         self.act.register_preempt_callback(self.actionPreempt)
@@ -140,7 +142,7 @@ class ObjectGrasper(ManipulateArm):
 
     def actionMain(self,object_centroid):
         target_centroid = object_centroid.goal
-        grasp_result = ObjectGrasperResult()
+        grasp_result = GraspingObjectResult()
         grasp_flg = False
         approach_flg = self.approachObject(target_centroid)
         if approach_flg:
@@ -150,7 +152,7 @@ class ObjectGrasper(ManipulateArm):
 
 
 if __name__ == '__main__':
-    rospy.init_node('grasping_action')
-    grasper = ObjectGrasper()
-    grasper.startUp()
+    rospy.init_node('grasping_action_server')
+    grasping_action_server= GraspingActionServer()
+    grasping_action_server.startUp()
     rospy.spin()
