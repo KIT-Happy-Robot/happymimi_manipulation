@@ -42,7 +42,7 @@ class ObjectGrasper(ManipulateArm):
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
             return False
-        
+
         self.armController(joint_angle)
         rospy.sleep(2.0)
         self.moveBase(0.6)
@@ -60,7 +60,7 @@ class ObjectGrasper(ManipulateArm):
         self.navigation_place = 'Null'
         rospy.loginfo('Finish place command\n')
         return True
-                        
+
     def moveBase(self,rad_speed):
         cmd = Twist()
         for speed_i in range(10):
@@ -124,7 +124,7 @@ class ObjectGrasper(ManipulateArm):
             rospy.loginfo('Failed to grasp the object.')
         rospy.loginfo('Finish grasp.')
         return grasp_flg
-    
+
     def navigationPlaceCB(self,res):
         self.navigation_place = res.data
 

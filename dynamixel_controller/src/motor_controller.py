@@ -11,7 +11,7 @@ from std_msgs.msg import Bool, Float64, Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from dynamixel_workbench_msgs.msg import DynamixelStateList
 from dynamixel_workbench_msgs.srv import DynamixelCommand
-# -- Custom Message -- 
+# -- Custom Message --
 from happymimi_msgs.srv import StrTrg
 from happymimi_recognition_msgs.srv import PositionEstimator
 
@@ -29,7 +29,7 @@ class MotorController(object):
         self.rotation_velocity = [0]*6
 
         rospy.Timer(rospy.Duration(0.5), self.motorAnglePub)
-        
+
     def getMotorStateCB(self, state):
         for i in range(6):
             self.current_pose[i] = state.dynamixel_state[i].present_position
@@ -64,7 +64,7 @@ class MotorController(object):
     def stepToRad(self,step):
         return step / 4095.0 * 2*math.pi - math.pi
     '''
-    
+
 
 class JointController(MotorController):
     def __init__(self):
@@ -151,8 +151,8 @@ class JointController(MotorController):
         deg *= -1
         step = self.degToStep(deg) + (self.origin_angle[5]-2048)
         self.callMotorService(5, step)
-    
-    
+
+
 class ManipulateArm(JointController):
     def __init__(self):
         super(ManipulateArm,self).__init__()
@@ -184,7 +184,7 @@ class ManipulateArm(JointController):
         except ValueError:
             rospy.loginfo('I can not move arm.')
             return [numpy.nan]*3
-        
+
     def armController(self, joint_angle):
         if type(joint_angle) != list:
             joint_angle = joint_angle.data
@@ -234,7 +234,7 @@ class ManipulateArm(JointController):
         elbow_param = 0
         wrist_param = 0
         self.armController([shoulder_param, elbow_param, wrist_param])
-        
+
     def carryMode(self):
         shoulder_param = -85
         elbow_param = 75
@@ -266,7 +266,7 @@ class ManipulateArm(JointController):
             rospy.sleep(0.5)
             endeffector_res = self.controlEndeffector(True)
             rospy.sleep(1.5)
-            
+
         self.carryMode()
         self.controlHead(0)
         return endeffector_res
@@ -292,7 +292,7 @@ class ManipulateArm(JointController):
         #その情報をobject_grasperに格納しているのでそちらでplaceの関数をオーバーライドしています。
         pass
 
-        
+
 if __name__ == '__main__':
     rospy.init_node('motor_controller')
     experiment = ManipulateArm()

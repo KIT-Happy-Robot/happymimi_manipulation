@@ -97,10 +97,8 @@ def actionMain(req):
     manipulation_flg = recognize_flg and grasp_flg
     return manipulation_flg
 
-    
+
 if __name__ == '__main__':
     rospy.init_node('manipulation_master')
-    
     rospy.Service('/recognition_to_grasping',StrTrg, actionMain)
-    
     rospy.spin()
