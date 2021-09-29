@@ -1,0 +1,5 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+  <rosparam file="$(find dynamixel_controller)/param/mimi_specification.yaml" command="load" ns="mimi_specification" /> 
+  <node pkg="dynamixel_controller" name="motor_controller" type="motor_controller.py" output="screen" />
+</launch>
