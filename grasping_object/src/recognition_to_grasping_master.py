@@ -78,7 +78,7 @@ def actionMain(request):
         recognition_flg, object_centroid = RA.recognizeObject(request)
         if recognition_flg:
             rospy.loginfo('\n-----  Grasping Action   -----')
-            grasp_flg = GA.graspObject(object_centroid)
+            #grasp_flg = GA.graspObject(object_centroid)
             grasp_count += 1
     manipulation_flg = recognition_flg and grasp_flg
     return manipulation_flg
