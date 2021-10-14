@@ -43,7 +43,10 @@ $ roslaunch grasping_object recognition_to_grasping.launch
 モジュールの呼び出し方法等は各種パッケージで記述
 
 ## Reverse Lookup
-- 認識から把持の一連のタスクを行いたい 👉 [happymimi_manipulation]()
+- Dynamixelモータの角度を知りたい 👉 [dynamixel_controllerの Motor Angle Publisher](https://github.com/KIT-Happy-Robot/happymimi_manipulation/tree/master/dynamixel_controller#motor-angle-publisher)
+- 首の角度を変えたい 👉 [dynamixel_controllerの Control Head Subscriber](https://github.com/KIT-Happy-Robot/happymimi_manipulation/tree/master/dynamixel_controller#control-head-subscriber)
+- アーム全体を制御したい, 物体の受け渡しをしたい, 物体を設置したい 👉 [dynamixel_controllerの Change Arm Pose](https://github.com/KIT-Happy-Robot/happymimi_manipulation/tree/master/dynamixel_controller#change-arm-pose)
+- 認識から把持の一連のタスクを行いたい 👉 [grasping_objectの Recognition To Grasping]()
 - 物体の認識について 👉 [happymimi_recognition](https://github.com/KIT-Happy-Robot/happymimi_recognition)
 
 ---
