@@ -58,8 +58,11 @@ mimiに搭載されている各Dynamixelモータの角度を出力するパブ�
 | :---: | :--- |
 | origin | アームを伸ばし、地面と水平にする |
 | carry | アームを折りたたみ、コンパクトにする |
-| receive | 物体を受け取る |
-| give | 物体を渡す |
-| place | 物体を設置する |
+| receive | 物体を受け取る, 終了後、carryに |
+| give | 物体を渡す, 終了後、carryに |
+| place | 物体を設置する, 終了後、carryに |
   
+**注意**  
+`place`を使う場合は`/current_location`に置く場所のロケーション名をpublishする必要があります。
+
 ---
