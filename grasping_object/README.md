@@ -14,13 +14,13 @@ Dynamixel_controllerを用いた物体把持関係をまとめたパッケージ
 | :---: | :---: | :---: | :---: | :---: |
 | Service | /recognition_to_grasping | [RecognitionToGrasping](https://github.com/KIT-Happy-Robot/happymimi_manipulation/blob/master/happymimi_manipulation_msgs/srv/RecognitionToGrasping.srv) | string型: `target_name`<br>[happymimi_msgs/StrInt型](https://github.com/KIT-Happy-Robot/happymimi_robot/blob/develop/happymimi_msgs/msg/StrInt.msg): `sort_option` | bool型: `result` |
   
-**target_nameの種類(必須)**  
+**target_nameの種類（必須）**  
 | target_name | Contents |
 | :---: | :--- |
 | 特定の名前(ex. cupとかbottleとか) | 指定した名前の物体を把持する |
 | any | 把持可能物体を適当に把持する |
   
-**sort_optionの種類(任意)**  
+**sort_optionの種類（任意）**  
 | data | Contents |
 | :---: | --- |
 | left | 画面左から順に並び替える |
