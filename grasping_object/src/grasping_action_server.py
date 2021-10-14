@@ -3,6 +3,8 @@
 
 import rospy
 import rosparam
+import roslib.packages
+import os
 import sys
 import time
 import math
@@ -10,14 +12,14 @@ import numpy
 import threading
 import actionlib
 from std_msgs.msg import Bool, Float64, String
-from dynamixel_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 # -- Custom Message --
 from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
 
-sys.path.insert(0, '/home/tatsuhito/catkin_ws/src/happymimi_manipulation/dynamixel_controller/src/'
+motor_controller_path = roslib.packages.get_pkg_dir("dynamixel_controller")
+sys.path.insert(0, os.path.join(motor_controller_path, 'src/'))
 from motor_controller import ManipulateArm
 
 class GraspingActionServer(ManipulateArm):
