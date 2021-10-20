@@ -100,7 +100,7 @@ class JointController(MotorController):
         if type(deg) == type(Float64()):
             deg = deg.data
         deg *= self.gear_ratio[2]
-        deg *= -1
+        #deg *= -1
         step = self.degToStep(deg) + (self.origin_angle[2]-2048)
         self.callMotorService(2, step)
         rospy.sleep(0.2)
