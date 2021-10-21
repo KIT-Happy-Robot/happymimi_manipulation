@@ -46,10 +46,13 @@ class MotorController(object):
         pub_deg_list = Float64MultiArray(data=current_deg_list)
         self.motor_angle_pub.publish(pub_deg_list)
 
-    def callMotorService(self, motor_id, rotate_value):
-        if type(rotate_value) == type(float()):
-            rotate_value = self.degToStep(rotate_value)
-        res = self.motor_client('', motor_id, 'Goal_Position', rotate_value)
+    def setPosition(self, motor_id, position_value):
+        if type(position_value) == type(float()):
+            rotate_value = self.degToStep(positionon_value)
+        res = self.motor_client('', motor_id, 'Goal_Position', position_value)
+
+    def setCurrent(self, motor_id, current_value):
+        res = self.motor_client('', motor_id, 'Goal_Current', current_value)
 
     def degToStep(self,deg):
         return int((deg+180)/360.0*4095)
@@ -82,17 +85,21 @@ class JointController(MotorController):
         step = self.degToStep(deg)
         step0 = 4095 - step + (self.origin_angle[0]-2048)
         step1 = step + (self.origin_angle[1]-2048)
-        thread_m0 = threading.Thread(target=self.callMotorService, args=(0, step0,))
-        thread_m1 = threading.Thread(target=self.callMotorService, args=(1, step1,))
+
+        self.setCurrent(0, 200)
+        self.setCurrent(1, 200)
+        thread_m0 = threading.Thread(target=self.setPosition, args=(0, step0,))
+        thread_m1 = threading.Thread(target=self.setPosition, args=(1, step1,))
         thread_m1.start()
         thread_m0.start()
         rospy.sleep(0.2)
+
         while (self.rotation_velocity[0] > 0 or self.rotation_velocity[1] > 0) and not rospy.is_shutdown():
             pass
-        rospy.sleep(0.5)
-        if abs(self.torque_error[0]) > 100 or abs(self.torque_error[1] > 100):
-            thread_m0 = threading.Thread(target=self.callMotorService, args=(0, self.current_pose[0],))
-            thread_m1 = threading.Thread(target=self.callMotorService, args=(1, self.current_pose[1],))
+        #rospy.sleep(0.5)
+        else:
+            thread_m0 = threading.Thread(target=self.setPosition, args=(0, self.current_pose[0],))
+            thread_m1 = threading.Thread(target=self.setPosition, args=(1, self.current_pose[1],))
             thread_m0.start()
             thread_m1.start()
 
@@ -100,48 +107,54 @@ class JointController(MotorController):
         if type(deg) == type(Float64()):
             deg = deg.data
         deg *= self.gear_ratio[2]
-        #deg *= -1
         step = self.degToStep(deg) + (self.origin_angle[2]-2048)
-        self.callMotorService(2, step)
+
+        self.setCurrent(2, 200)
+        self.setPosition(2, step)
         rospy.sleep(0.2)
+
         while self.rotation_velocity[2] > 0 and not rospy.is_shutdown():
             pass
-        rospy.sleep(0.5)
-        if abs(self.torque_error[2]) > 100:
-            self.callMotorService(2, self.current_pose[2])
+        #rospy.sleep(0.5)
+        else:
+            self.setPosition(2, self.current_pose[2])
 
     def controlWrist(self,deg):
         if type(deg) == type(Float64()):
             deg = deg.data
         deg *= self.gear_ratio[3]
         step = self.degToStep(deg) + (self.origin_angle[3]-2048)
-        self.callMotorService(3, step)
+
+        self.setCurrent(3, 200)
+        self.setPosition(3, step)
         rospy.sleep(0.2)
+
         while self.rotation_velocity[3] > 0 and not rospy.is_shutdown():
             pass
-        rospy.sleep(0.5)
-        if abs(self.torque_error[3]) > 100:
-            self.callMotorService(3, self.current_pose[3])
+        #rospy.sleep(0.5)
+        else:
+            self.setPosition(3, self.current_pose[3])
 
     def controlEndeffector(self,req):
         if type(req) == type(Bool()):
             req = req.data
+
+        # OPEN
         if not req:
-            self.callMotorService(4, self.origin_angle[4])
-            rospy.loginfo("ok")
+            self.setCurrent(4, 100)
+            self.setPosition(4, self.origin_angle[4])
+            rospy.sleep(0.2)
             return True
-        angle = self.origin_angle[4]
+
+        # CLOSE
+        goal_position = self.origin_angle[4] + 430
         grasp_flg = True
-        while abs(self.torque_error[4]) <= 50 and not rospy.is_shutdown():
-            angle -= 10
-            self.callMotorService(4, angle)
-            while self.rotation_velocity[4] > 15.0 and not rospy.is_shutdown():
-                pass
-            if angle < 2950:
-                grasp_flg = False
-                break;
-        rospy.sleep(0.1)
-        self.callMotorService(4, self.current_pose[4]-80)
+        while self.rotation_velocity[4] > 0 and not rospy.is_shutdown():
+            pass
+        #rospy.sleep(0.5)
+        else:
+            self.setPosition(4, self.current_position[4])
+        grasp_flg = self.torque_error[4] > 30
         return grasp_flg
 
     def controlHead(self,deg):
