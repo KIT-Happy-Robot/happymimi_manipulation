@@ -137,14 +137,14 @@ class JointController(MotorController):
 
         # OPEN
         if not req:
-            self.setCurrent(4, 400)
+            self.setCurrent(4, 200)
             self.setPosition(4, self.origin_angle[4])
             rospy.sleep(0.2)
             return True
 
         # CLOSE
-        goal_position = self.origin_angle[4] + 430
-        self.setCurrent(4, 400)
+        goal_position = self.origin_angle[4] + 480
+        self.setCurrent(4, 200)
         self.setPosition(4, goal_position)
         rospy.sleep(0.2)
 
@@ -152,8 +152,9 @@ class JointController(MotorController):
             pass
         else:
             rospy.sleep(0.5)
-            self.setPosition(4, self.current_position[4])
+            #self.setPosition(4, self.current_pose[4])
         grasp_flg = self.torque_error[4] > 30
+        print grasp_flg
         return grasp_flg
 
     def controlHead(self,deg):
@@ -249,8 +250,8 @@ class ManipulateArm(JointController):
 
     def carryMode(self):
         shoulder_param = -85
-        elbow_param = 75
-        wrist_param = 85
+        elbow_param = 90
+        wrist_param = 90
         self.armController([shoulder_param, elbow_param, wrist_param])
 
     def receiveMode(self):
