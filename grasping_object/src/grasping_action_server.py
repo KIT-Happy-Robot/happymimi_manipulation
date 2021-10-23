@@ -18,7 +18,7 @@ from geometry_msgs.msg import Point
 from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
 
-motor_controller_path = roslib.packages.get_pkg_dir("dynamixel_controller")
+motor_controller_path = roslib.packages.get_pkg_dir('dynamixel_controller')
 sys.path.insert(0, os.path.join(motor_controller_path, 'src/'))
 from motor_controller import ManipulateArm
 
