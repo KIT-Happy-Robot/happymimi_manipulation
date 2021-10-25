@@ -76,8 +76,7 @@ class GraspingActionServer(ManipulateArm):
             return False
         elif object_centroid.x < 0.5 or object_centroid.x > 0.8:
             move_range = (object_centroid.x-0.65)
-            if abs(move_range) < 0.2:
-                move_range = int(move_range/abs(move_range))*0.2
+            if abs(move_range) < 0.2: move_range = int(move_range/abs(move_range))*0.2
             self.base_control.translateDist(move_range)
             rospy.sleep(4.0)
             return False
