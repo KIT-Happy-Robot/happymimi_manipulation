@@ -74,7 +74,7 @@ def actionMain(request):
     RA = RecognitionAction()
     GA = GraspingAction()
 
-    while recognition_flg and not grasp_flg and grasp_count < 3 and not rospy.is_shutdown():
+    while recognition_flg and not grasp_flg and grasp_count < 2 and not rospy.is_shutdown():
         rospy.loginfo('\n----- Recognition Action -----')
         recognition_flg, object_centroid = RA.recognizeObject(request)
         if recognition_flg:

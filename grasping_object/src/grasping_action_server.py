@@ -45,7 +45,8 @@ class GraspingActionServer(ManipulateArm):
         self.act.start()
 
     def placeMode(self):#override
-        self.base_control.translateDist(-0.3)
+        self.base_control.translateDist(-0.2)
+        rospy.sleep(1.0)
         y = self.target_place[self.navigation_place] + 0.14
         #x = (y-0.78)/10+0.5
         x = 0.5
@@ -55,9 +56,10 @@ class GraspingActionServer(ManipulateArm):
 
         self.armController(joint_angle)
         rospy.sleep(2.0)
-        self.base_control.translateDist(0.3)
+        self.base_control.translateDist(0.1)
         rospy.sleep(1.0)
-        self.base_control.translateDist(0.2)
+        self.base_control.translateDist(0.1, 0.1)
+        rospy.sleep(1.0)
 
         joint_angle = self.inverseKinematics([x, y-0.03])
         if not (numpy.nan in joint_angle):
@@ -65,7 +67,7 @@ class GraspingActionServer(ManipulateArm):
         rospy.sleep(2.0)
         self.controlEndeffector(False)
         rospy.sleep(2.0)
-        self.base_control.translateDist(-0.5)
+        self.base_control.translateDist(-0.2)
         self.changeArmPose('carry')
         self.navigation_place = 'Null'
         rospy.loginfo('Finish place command\n')
@@ -85,9 +87,10 @@ class GraspingActionServer(ManipulateArm):
 
     def graspObject(self, object_centroid):
         rospy.loginfo('\n----- Grasp Object -----')
-        self.base_control.translateDist(-0.5)
+        self.base_control.translateDist(-0.1, 0.1)
+        rospy.sleep(0.5)
         if self.navigation_place == 'Null':
-            y = object_centroid.z + 0.06
+            y = object_centroid.z + 0.05
         else:
             y = self.target_place[self.navigation_place] + 0.10
         #x = (y-0.75)/10+0.5
@@ -97,14 +100,15 @@ class GraspingActionServer(ManipulateArm):
             return False
         self.armController(joint_angle)
         rospy.sleep(2.5)
-        move_range = 0.5 + (object_centroid.x + 0.05 - x)*3.0
-        self.base_control.translateDist(move_range*0.7)
-        rospy.sleep(0.3)
-        self.base_control.translateDist(move_range*0.4)
+        move_range = 0.12 + (object_centroid.x + 0.05 - x)
+        self.base_control.translateDist(move_range*0.8, 0.15)
+        rospy.sleep(0.5)
+        self.base_control.translateDist(move_range*0.2, 0.1)
+        rospy.sleep(0.5)
         grasp_flg = self.controlEndeffector(True)
         rospy.sleep(1.0)
         self.controlShoulder(joint_angle[0]+5.0)
-        self.base_control.translateDist(-0.9)
+        self.base_control.translateDist(-0.3)
         self.changeArmPose('carry')
         rospy.sleep(4.0)
         if grasp_flg :
@@ -112,7 +116,7 @@ class GraspingActionServer(ManipulateArm):
         if grasp_flg :
             rospy.loginfo('Successfully grasped the object!')
         else:
-            self.callMotorService(4, self.origin_angle[4])
+            self.setPosition(4, self.origin_angle[4])
             rospy.loginfo('Failed to grasp the object.')
         rospy.loginfo('Finish grasp.')
         return grasp_flg

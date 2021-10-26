@@ -88,8 +88,8 @@ class JointController(MotorController):
 
         thread_m0 = threading.Thread(target=self.setPosition, args=(0, step0,))
         thread_m1 = threading.Thread(target=self.setPosition, args=(1, step1,))
-        thread_m1.start()
         thread_m0.start()
+        thread_m1.start()
         rospy.sleep(0.2)
 
         while (self.rotation_velocity[0] > 0 or self.rotation_velocity[1] > 0) and not rospy.is_shutdown():
@@ -205,9 +205,9 @@ class ManipulateArm(JointController):
         thread_elbow = threading.Thread(target=self.controlElbow, args=(joint_angle[1],))
         thread_wrist = threading.Thread(target=self.controlWrist, args=(joint_angle[2],))
         thread_wrist.start()
-        rospy.sleep(0.5)
+        #rospy.sleep(0.5)
         thread_elbow.start()
-        rospy.sleep(0.5)
+        #rospy.sleep(0.5)
         thread_shoulder.start()
 
     def manipulateByInverseKinematics(coordinate):
@@ -298,6 +298,7 @@ class ManipulateArm(JointController):
         while abs(wrist_error - abs(self.torque_error[3])) < 10 and time.time() - give_time < 5.0 and not rospy.is_shutdown():
             pass
         self.setPosition(4, self.origin_angle[4])
+        rospy.sleep(0.5)
         self.carryMode()
 
     def placeMode(self):
