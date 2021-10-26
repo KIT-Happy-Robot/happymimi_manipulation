@@ -1,9 +1,9 @@
-Ground_RealSense_Height: 1.02
-Ground_Neck_Height: 0.913
+Ground_RealSense_Height: 1.05
+Ground_Neck_Height: 0.943
 Ground_Arm_Height: 0.78
 Shoulder_Elbow_Length: 0.22
 Elbow_Wrist_Length: 0.17
-Wrist_Endeffector_Length: 0.15
+Wrist_Endeffector_Length: 0.17
 
 Origin_Angle: [1090, 2940, 2048, 2048, 2150, 1794]
 Gear_Ratio: [2.1, 2.1, 1, 1, 1, 1]
