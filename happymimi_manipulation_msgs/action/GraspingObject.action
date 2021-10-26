@@ -1,5 +1,5 @@
 # Define the goal
-geometry_msgs/Point goal 
+geometry_msgs/Point goal
 ---
 # Define the result
 bool result

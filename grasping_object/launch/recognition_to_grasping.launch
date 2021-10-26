@@ -1,5 +1,6 @@
 <!-- -*- mode: XML -*- -->
 <launch>
+  <rosparam file="$(find dynamixel_controller)/param/mimi_specification.yaml" command="load" ns="mimi_specification" />
   <rosparam file="$(find grasping_object)/param/location_dict.yaml" command="load" ns="location_dict"/>
   <node pkg="grasping_object" name="grasping_action_server" type="grasping_action_server.py" />
   <node pkg="grasping_object" name="recognition_to_grasping_master" type="recognition_to_grasping_master.py" output="screen" />
