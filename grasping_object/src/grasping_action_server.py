@@ -14,7 +14,7 @@ import actionlib
 from std_msgs.msg import Bool, Float64, String
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
-# -- Custom Message --
+
 from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
 
@@ -22,24 +22,30 @@ motor_controller_path = roslib.packages.get_pkg_dir('dynamixel_controller')
 sys.path.insert(0, os.path.join(motor_controller_path, 'src/'))
 from motor_controller import ManipulateArm
 
+teleop_path = roslib.packages.get_pkg_dir('happymimi_teleop')
+sys.path.insert(0, os.path.join(teleop_path, 'src/'))
+from base_control import BaseControl
+
 class GraspingActionServer(ManipulateArm):
     def __init__(self):
         super(GraspingActionServer,self).__init__()
         rospy.Subscriber('/current_location',String,self.navigationPlaceCB)
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel_mux/input/teleop',Twist,queue_size = 1)
+        self.navigation_place = 'Null'
+        self.target_place = rosparam.get_param('/location_dict')
+
+        self.base_control = BaseControl()
+
         self.act = actionlib.SimpleActionServer('/manipulation/grasp',
                                                 GraspingObjectAction,
                                                 execute_cb = self.actionMain,
                                                 auto_start = False)
         self.act.register_preempt_callback(self.actionPreempt)
 
-        self.navigation_place = 'Null'
-        self.target_place = rosparam.get_param('/location_dict')
-
         self.act.start()
 
     def placeMode(self):#override
-        self.moveBase(-0.6)
+        self.base_control.translateDist(-0.3)
         y = self.target_place[self.navigation_place] + 0.14
         #x = (y-0.78)/10+0.5
         x = 0.5
@@ -49,9 +55,9 @@ class GraspingActionServer(ManipulateArm):
 
         self.armController(joint_angle)
         rospy.sleep(2.0)
-        self.moveBase(0.6)
-        rospy.sleep(2.0)
-        self.moveBase(0.4)
+        self.base_control.translateDist(0.3)
+        rospy.sleep(1.0)
+        self.base_control.translateDist(0.2)
 
         joint_angle = self.inverseKinematics([x, y-0.03])
         if not (numpy.nan in joint_angle):
@@ -59,36 +65,19 @@ class GraspingActionServer(ManipulateArm):
         rospy.sleep(2.0)
         self.controlEndeffector(False)
         rospy.sleep(2.0)
-        self.moveBase(-0.9)
+        self.base_control.translateDist(-0.5)
         self.changeArmPose('carry')
         self.navigation_place = 'Null'
         rospy.loginfo('Finish place command\n')
         return True
 
-    def moveBase(self,rad_speed):
-        cmd = Twist()
-        for speed_i in range(10):
-            cmd.linear.x = rad_speed*0.05*speed_i
-            cmd.angular.z = 0
-            self.cmd_vel_pub.publish(cmd)
-            rospy.sleep(0.1)
-        for speed_i in range(10):
-            cmd.linear.x = rad_speed*0.05*(10-speed_i)
-            cmd.angular.z = 0
-            self.cmd_vel_pub.publish(cmd)
-            rospy.sleep(0.1)
-        cmd.linear.x = 0
-        cmd.angular.z = 0
-        self.cmd_vel_pub.publish(cmd)
-
     def approachObject(self,object_centroid):
         if object_centroid.x > 1.5:
             return False
         elif object_centroid.x < 0.5 or object_centroid.x > 0.8:
-            move_range = (object_centroid.x-0.65)*2.0
-            if abs(move_range) < 0.3:
-                move_range = int(move_range/abs(move_range))*0.3
-            self.moveBase(move_range)
+            move_range = (object_centroid.x-0.65)
+            if abs(move_range) < 0.2: move_range = int(move_range/abs(move_range))*0.2
+            self.base_control.translateDist(move_range)
             rospy.sleep(4.0)
             return False
         else :

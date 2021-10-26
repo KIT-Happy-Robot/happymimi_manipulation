@@ -86,8 +86,6 @@ class JointController(MotorController):
         step0 = 4095 - step + (self.origin_angle[0]-2048)
         step1 = step + (self.origin_angle[1]-2048)
 
-        self.setCurrent(0, 200)
-        self.setCurrent(1, 200)
         thread_m0 = threading.Thread(target=self.setPosition, args=(0, step0,))
         thread_m1 = threading.Thread(target=self.setPosition, args=(1, step1,))
         thread_m1.start()
@@ -96,8 +94,8 @@ class JointController(MotorController):
 
         while (self.rotation_velocity[0] > 0 or self.rotation_velocity[1] > 0) and not rospy.is_shutdown():
             pass
-        #rospy.sleep(0.5)
-        else:
+        rospy.sleep(0.5)
+        if abs(self.torque_error[0]) > 100 or abs(self.torque_error[1] > 100):
             thread_m0 = threading.Thread(target=self.setPosition, args=(0, self.current_pose[0],))
             thread_m1 = threading.Thread(target=self.setPosition, args=(1, self.current_pose[1],))
             thread_m0.start()
@@ -109,14 +107,13 @@ class JointController(MotorController):
         deg *= self.gear_ratio[2]
         step = self.degToStep(deg) + (self.origin_angle[2]-2048)
 
-        self.setCurrent(2, 200)
         self.setPosition(2, step)
         rospy.sleep(0.2)
 
         while self.rotation_velocity[2] > 0 and not rospy.is_shutdown():
             pass
-        #rospy.sleep(0.5)
-        else:
+        rospy.sleep(0.5)
+        if abs(self.torque_error[2]) > 100:
             self.setPosition(2, self.current_pose[2])
 
     def controlWrist(self,deg):
@@ -125,14 +122,13 @@ class JointController(MotorController):
         deg *= self.gear_ratio[3]
         step = self.degToStep(deg) + (self.origin_angle[3]-2048)
 
-        self.setCurrent(3, 200)
         self.setPosition(3, step)
         rospy.sleep(0.2)
 
         while self.rotation_velocity[3] > 0 and not rospy.is_shutdown():
             pass
-        #rospy.sleep(0.5)
-        else:
+        rospy.sleep(0.5)
+        if abs(self.torque_error[3]) > 100:
             self.setPosition(3, self.current_pose[3])
 
     def controlEndeffector(self,req):
@@ -141,20 +137,24 @@ class JointController(MotorController):
 
         # OPEN
         if not req:
-            self.setCurrent(4, 100)
+            self.setCurrent(4, 200)
             self.setPosition(4, self.origin_angle[4])
             rospy.sleep(0.2)
             return True
 
         # CLOSE
-        goal_position = self.origin_angle[4] + 430
-        grasp_flg = True
+        goal_position = self.origin_angle[4] + 480
+        self.setCurrent(4, 200)
+        self.setPosition(4, goal_position)
+        rospy.sleep(0.2)
+
         while self.rotation_velocity[4] > 0 and not rospy.is_shutdown():
             pass
-        #rospy.sleep(0.5)
         else:
-            self.setPosition(4, self.current_position[4])
+            rospy.sleep(0.5)
+            #self.setPosition(4, self.current_pose[4])
         grasp_flg = self.torque_error[4] > 30
+        print grasp_flg
         return grasp_flg
 
     def controlHead(self,deg):
@@ -250,8 +250,8 @@ class ManipulateArm(JointController):
 
     def carryMode(self):
         shoulder_param = -85
-        elbow_param = 75
-        wrist_param = 85
+        elbow_param = 90
+        wrist_param = 90
         self.armController([shoulder_param, elbow_param, wrist_param])
 
     def receiveMode(self):
