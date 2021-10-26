@@ -34,6 +34,7 @@ class RecognitionAction(object):
 
         act.wait_for_result()
         result = act.get_result()
+        print result.result_flg
 
         return result.result_flg, result.centroid_point
 
@@ -50,12 +51,12 @@ class GraspingAction(object):
         act.wait_for_server(rospy.Duration(5))
         rospy.loginfo('send goal')
         goal = GraspingObjectGoal()
-        goal.grasp_goal = target_centroid
+        goal.goal = target_centroid
         act.send_goal(goal, feedback_cb = self.graspingFeedback)
         act.wait_for_result()
         result = act.get_result()
 
-        return result.grasp_result
+        return result.result
 
 def actionMain(request):
     endeffector_pub = rospy.Publisher('/servo/endeffector',Bool,queue_size=1)
@@ -78,7 +79,7 @@ def actionMain(request):
         recognition_flg, object_centroid = RA.recognizeObject(request)
         if recognition_flg:
             rospy.loginfo('\n-----  Grasping Action   -----')
-            #grasp_flg = GA.graspObject(object_centroid)
+            grasp_flg = GA.graspObject(object_centroid)
             grasp_count += 1
     manipulation_flg = recognition_flg and grasp_flg
     return manipulation_flg

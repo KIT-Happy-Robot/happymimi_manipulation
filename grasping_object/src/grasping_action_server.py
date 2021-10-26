@@ -85,7 +85,7 @@ class GraspingActionServer(ManipulateArm):
 
     def graspObject(self, object_centroid):
         rospy.loginfo('\n----- Grasp Object -----')
-        self.moveBase(-0.5)
+        self.base_control.translateDist(-0.5)
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.06
         else:
@@ -98,14 +98,13 @@ class GraspingActionServer(ManipulateArm):
         self.armController(joint_angle)
         rospy.sleep(2.5)
         move_range = 0.5 + (object_centroid.x + 0.05 - x)*3.0
-        # 0.5:後退量, 0.05:realsenseからshoulderまでのx軸の距離, 3.0:moveBaseの数値に変換(おおよそ)
-        self.moveBase(move_range*0.7)
+        self.base_control.translateDist(move_range*0.7)
         rospy.sleep(0.3)
-        self.moveBase(move_range*0.4)
+        self.base_control.translateDist(move_range*0.4)
         grasp_flg = self.controlEndeffector(True)
         rospy.sleep(1.0)
         self.controlShoulder(joint_angle[0]+5.0)
-        self.moveBase(-0.9)
+        self.base_control.translateDist(-0.9)
         self.changeArmPose('carry')
         rospy.sleep(4.0)
         if grasp_flg :

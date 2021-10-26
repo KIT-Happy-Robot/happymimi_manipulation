@@ -163,7 +163,7 @@ class JointController(MotorController):
         deg *= self.gear_ratio[5]
         deg *= -1
         step = self.degToStep(deg) + (self.origin_angle[5]-2048)
-        self.callMotorService(5, step)
+        self.setPosition(5, step)
 
 
 class ManipulateArm(JointController):
@@ -297,7 +297,7 @@ class ManipulateArm(JointController):
         give_time = time.time()
         while abs(wrist_error - abs(self.torque_error[3])) < 10 and time.time() - give_time < 5.0 and not rospy.is_shutdown():
             pass
-        self.callMotorService(4, self.origin_angle[4])
+        self.setPosition(4, self.origin_angle[4])
         self.carryMode()
 
     def placeMode(self):
