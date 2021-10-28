@@ -88,8 +88,6 @@ class GraspingActionServer(ManipulateArm):
     def graspObject(self, object_centroid):
         rospy.loginfo('\n----- Grasp Object -----')
 
-        localize_object = rospy.ServiceProxy('/recognition/localize', RecognitionLocalize)
-
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05
         else:
