@@ -45,7 +45,7 @@ class GraspingActionServer(ManipulateArm):
         self.act.start()
 
     def placeMode(self):#override
-        self.base_control.translateDist(-0.2)
+        self.base_control.translateDist(-0.1)
         rospy.sleep(1.0)
         y = self.target_place[self.navigation_place] + 0.14
         #x = (y-0.78)/10+0.5
@@ -56,9 +56,7 @@ class GraspingActionServer(ManipulateArm):
 
         self.armController(joint_angle)
         rospy.sleep(2.0)
-        self.base_control.translateDist(0.1)
-        rospy.sleep(1.0)
-        self.base_control.translateDist(0.1, 0.1)
+        self.base_control.translateDist(0.2)
         rospy.sleep(1.0)
 
         joint_angle = self.inverseKinematics([x, y-0.03])
