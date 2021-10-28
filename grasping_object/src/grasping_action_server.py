@@ -87,8 +87,9 @@ class GraspingActionServer(ManipulateArm):
 
     def graspObject(self, object_centroid):
         rospy.loginfo('\n----- Grasp Object -----')
-        self.base_control.translateDist(-0.1, 0.1)
-        rospy.sleep(0.5)
+
+        localize_object = rospy.ServiceProxy('/recognition/localize', RecognitionLocalize)
+
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05
         else:
@@ -100,19 +101,30 @@ class GraspingActionServer(ManipulateArm):
             return False
         self.armController(joint_angle)
         rospy.sleep(2.5)
-        move_range = 0.12 + (object_centroid.x + 0.05 - x)
-        self.base_control.translateDist(move_range*0.8, 0.15)
+
+        move_range = object_centroid.x - x
+        self.base_control.translateDist(move_range, 0.15)
         rospy.sleep(0.5)
-        self.base_control.translateDist(move_range*0.2, 0.1)
-        rospy.sleep(0.5)
+        
+        x = 0.48
+        joint_angle = self.inverseKinematics([x, y])
+        if numpy.nan in joint_angle:
+            self.base_control.translateDist(0.05, 0.1)
+        self.armController(joint_angle)
+        rospy.sleep(2.5)
+
         grasp_flg = self.controlEndeffector(True)
         rospy.sleep(1.0)
-        self.controlShoulder(joint_angle[0]+5.0)
+        self.controlWrist(joint_angle[2]+45.0)
         self.base_control.translateDist(-0.3)
+
         self.changeArmPose('carry')
         rospy.sleep(4.0)
+
+        '''
         if grasp_flg :
             grasp_flg = abs(self.torque_error[4]) > 30
+        '''
         if grasp_flg :
             rospy.loginfo('Successfully grasped the object!')
         else:
