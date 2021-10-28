@@ -101,8 +101,8 @@ class GraspingActionServer(ManipulateArm):
         move_range = object_centroid.x - x
         self.base_control.translateDist(move_range, 0.15)
         rospy.sleep(0.5)
-        
-        x = 0.48
+
+        x = 0.55
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
             self.base_control.translateDist(0.05, 0.1)
