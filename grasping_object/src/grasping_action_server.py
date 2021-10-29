@@ -88,7 +88,7 @@ class GraspingActionServer(ManipulateArm):
 
         x = 0.475
         #x = (y-0.75)/10+0.5
-        y = object_centroid.z
+        y = object_centroid.z + 0.03
         '''
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05
