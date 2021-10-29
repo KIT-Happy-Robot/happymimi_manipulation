@@ -86,19 +86,22 @@ class GraspingActionServer(ManipulateArm):
     def graspObject(self, object_centroid):
         rospy.loginfo('\n----- Grasp Object -----')
 
+        x = 0.475
+        #x = (y-0.75)/10+0.5
+        y = object_centroid.z
+        '''
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05
         else:
             y = self.target_place[self.navigation_place] + 0.10
-        #x = (y-0.75)/10+0.5
-        x = 0.475
+        '''
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
             return False
         self.armController(joint_angle)
         rospy.sleep(2.5)
 
-        move_range = object_centroid.x + 0.05 - x
+        move_range = object_centroid.x + 0.07 - x
         self.base_control.translateDist(move_range*0.8, 0.15)
         rospy.sleep(0.5)
         self.base_control.translateDist(move_range*0.2, 0.1)
