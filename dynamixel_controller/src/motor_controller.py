@@ -289,7 +289,7 @@ class ManipulateArm(JointController):
         elbow_param = 75
         wrist_param = -35
         self.armController([shoulder_param, elbow_param, wrist_param])
-        rospy.sleep(1.0)
+        rospy.sleep(1.5)
         while self.rotation_velocity[3] > 0 and not rospy.is_shutdown():
             pass
         rospy.sleep(1.0)
