@@ -222,7 +222,7 @@ class ManipulateArm(JointController):
     def changeArmPose(self, cmd):
         if type(cmd) != str:
             cmd = cmd.data
-        rospy.loginfo('Chagnge arm command : %s'%cmd)
+        rospy.loginfo('Change arm command : %s'%cmd)
         if cmd == 'origin':
             self.originMode()
             return True
