@@ -294,13 +294,15 @@ class ManipulateArm(JointController):
         shoulder_param = 0
         elbow_param = 0
         wrist_param = 0
-        self.armController([shoulder_param, elbow_param, wrist_param])
+        #self.armController([shoulder_param, elbow_param, wrist_param])
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
 
     def carryMode(self):
         shoulder_param = -85
         elbow_param = 90
         wrist_param = 90
-        self.armController([shoulder_param, elbow_param, wrist_param])
+        #self.armController([shoulder_param, elbow_param, wrist_param])
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
 
     def receiveMode(self):
         self.controlHead(25)
@@ -308,7 +310,8 @@ class ManipulateArm(JointController):
         shoulder_param = -40
         elbow_param = 70
         wrist_param = -30
-        self.armController([shoulder_param, elbow_param, wrist_param])
+        #self.armController([shoulder_param, elbow_param, wrist_param])
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
         rospy.sleep(0.5)
         self.controlEndeffector(False)
 
@@ -336,7 +339,8 @@ class ManipulateArm(JointController):
         shoulder_param = -35
         elbow_param = 75
         wrist_param = -35
-        self.armController([shoulder_param, elbow_param, wrist_param])
+        #self.armController([shoulder_param, elbow_param, wrist_param])
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
         rospy.sleep(1.5)
         while self.rotation_velocity[3] > 0 and not rospy.is_shutdown():
             pass
