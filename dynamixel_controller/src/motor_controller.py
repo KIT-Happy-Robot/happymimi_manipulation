@@ -14,6 +14,7 @@ from dynamixel_workbench_msgs.srv import DynamixelCommand
 # -- Custom Message --
 from happymimi_msgs.srv import StrTrg
 from happymimi_recognition_msgs.srv import PositionEstimator
+from happymimi_manipulation_msgs.srv import ArmControl
 
 class MotorController(object):
     def __init__(self):
@@ -31,7 +32,7 @@ class MotorController(object):
         rospy.Timer(rospy.Duration(0.5), self.motorAnglePub)
 
     def getMotorStateCB(self, state):
-        for i in range(6):
+        for i in range(2):
             self.current_pose[i] = state.dynamixel_state[i].present_position
             self.rotation_velocity[i] = abs(state.dynamixel_state[i].present_velocity)
             self.torque_error[i] = state.dynamixel_state[i].present_current
@@ -46,6 +47,28 @@ class MotorController(object):
         pub_deg_list = Float64MultiArray(data=current_deg_list)
         self.motor_angle_pub.publish(pub_deg_list)
 
+    def degToStep(self,deg):
+        return int((deg+180)/360.0*4095)
+
+    def stepToDeg(self,step):
+        return round(step/4095.0*360.0-180, 1)
+
+    def radToStep(self,rad):
+        return int((rad + math.pi) / (2*math.pi) * 4095)
+
+    def stepToRad(self,step):
+        return step / 4095.0 * 2*math.pi - math.pi
+
+    def motorPub(self, joint_name, joint_angle, execute_time=2.0):
+        msg = JointTrajectory()
+        msg.header.stamp = rospy.Time.now()
+        msg.joint_names = joint_name
+        #msg.points = [JointTrajectoryPoint() for i in range(1)]
+        msg.points = [JointTrajectoryPoint()]
+        msg.points[0].positions = joint_angle
+        msg.points[0].time_from_start = rospy.Time(execute_time)
+        self.motor_pub.publish(msg)
+
     def setPosition(self, motor_id, position_value):
         if type(position_value) == type(float()):
             rotate_value = self.degToStep(positionon_value)
@@ -53,20 +76,6 @@ class MotorController(object):
 
     def setCurrent(self, motor_id, current_value):
         res = self.motor_client('', motor_id, 'Goal_Current', current_value)
-
-    def degToStep(self,deg):
-        return int((deg+180)/360.0*4095)
-
-    def stepToDeg(self,step):
-        return round(step/4095.0*360.0-180, 1)
-
-    '''
-    def radToStep(self,rad):
-        return int((rad + math.pi) / (2*math.pi) * 4095)
-
-    def stepToRad(self,step):
-        return step / 4095.0 * 2*math.pi - math.pi
-    '''
 
 
 class JointController(MotorController):
@@ -77,6 +86,29 @@ class JointController(MotorController):
         rospy.Subscriber('/servo/wrist',Float64,self.controlWrist)
         rospy.Subscriber('/servo/endeffector',Bool,self.controlEndeffector)
         rospy.Subscriber('/servo/head',Float64,self.controlHead)
+
+    def shoulderConversionProcess(self, deg):
+        deg *= self.gear_ratio[0]
+        rad = math.radians(deg)
+        print 'rad: ', rad
+        #m0_rad = math.pi - rad + self.stepToRad(self.origin_angle[0])
+        m0_rad = -1*rad + self.stepToRad(self.origin_angle[0])
+        m1_rad = rad + self.stepToRad(self.origin_angle[1])
+        print 'm0_origin', self.stepToRad(self.origin_angle[0])
+        print 'm1_origin', self.stepToRad(self.origin_angle[1])
+        return m0_rad, m1_rad
+
+    def elbowConversionProcess(self, deg):
+        rad = math.radians(deg)
+        m2_rad = rad + self.stepToRad(self.origin_angle[2])
+        print 'm2_origin', self.stepToRad(self.origin_angle[2])
+        return m2_rad
+
+    def wristConversionProcess(self, deg):
+        rad = math.radians(deg)
+        m3_rad = rad + self.stepToRad(self.origin_angle[3])
+        print 'm3_origin', self.stepToRad(self.origin_angle[3])
+        return m3_rad
 
     def controlShoulder(self,deg):
         if type(deg) == type(Float64()):
@@ -169,8 +201,8 @@ class JointController(MotorController):
 class ManipulateArm(JointController):
     def __init__(self):
         super(ManipulateArm,self).__init__()
-        #rospy.Service('/servo/debug_arm', , self.manipulateByInverseKinematics)
         rospy.Service('/servo/arm', StrTrg, self.changeArmPose)
+        rospy.Service('/servo/debug_arm', ArmControl, self.armControlService)
         self.detect_depth = rospy.ServiceProxy('/detect/depth', PositionEstimator)
         self.arm_specification = rosparam.get_param('/mimi_specification')
 
@@ -183,19 +215,19 @@ class ManipulateArm(JointController):
         l3 = self.arm_specification['Wrist_Endeffector_Length']
         x -= l3
         y -= l0
-        rospy.loginfo(x)
+
         data1 =  x*x+y*y+l1*l1-l2*l2
         data2 =  2*l1*math.sqrt(x*x+y*y)
+
         try:
             shoulder_angle = -1*math.acos((x*x+y*y+l1*l1-l2*l2) / (2*l1*math.sqrt(x*x+y*y))) + math.atan(y/x)# -1倍の有無で別解
             elbow_angle = math.atan((y-l1*math.sin(shoulder_angle))/(x-l1*math.cos(shoulder_angle)))-shoulder_angle
             wrist_angle = -1*(shoulder_angle + elbow_angle)
             angle_list = [shoulder_angle, elbow_angle, wrist_angle]
             angle_list = map(math.degrees, angle_list)
-            rospy.loginfo(angle_list)
             return angle_list
         except ValueError:
-            rospy.loginfo('I can not move arm.')
+            rospy.loginfo('can not move arm.')
             return [numpy.nan]*3
 
     def armController(self, joint_angle):
@@ -210,13 +242,29 @@ class ManipulateArm(JointController):
         #rospy.sleep(0.5)
         thread_shoulder.start()
 
-    def manipulateByInverseKinematics(coordinate):
-        if type(coordinate) != float:
-            coordinate = coordinate.coordinate
+    def armControllerByTopic(self, joint_angle):
+        m0, m1 = self.shoulderConversionProcess(joint_angle[0])
+        m2 = self.elbowConversionProcess(joint_angle[1])
+        m3 = self.wristConversionProcess(joint_angle[2])
+
+        print 'm0, m1, m2, m3'
+        print m0, m1, m2, m3
+        print map(math.degrees, [m0, m1, m2, m3])
+        self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint'], [m0, m1, m2, m3])
+
+    def armControlService(self, coordinate):
+        try:
+            coordinate = coordinate.data
+        except AttributeError:
+            pass
         joint_angle = self.inverseKinematics(coordinate)
+        print ''
+        print 'joint_angle'
+        print joint_angle
         if numpy.nan in joint_angle:
             return False
-        self.armController()
+        #self.armController(joint_angle)
+        self.armControllerByTopic(joint_angle)
         return True
 
     def changeArmPose(self, cmd):
