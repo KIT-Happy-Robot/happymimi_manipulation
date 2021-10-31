@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   RecognitionToGrasping.srv
+  ArmControl.srv
 )
 
 ## Generate actions in the 'action' folder
