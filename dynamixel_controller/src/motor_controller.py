@@ -32,7 +32,7 @@ class MotorController(object):
         rospy.Timer(rospy.Duration(0.5), self.motorAnglePub)
 
     def getMotorStateCB(self, state):
-        for i in range(3):
+        for i in range(6):
             self.current_pose[i] = state.dynamixel_state[i].present_position
             self.rotation_velocity[i] = abs(state.dynamixel_state[i].present_velocity)
             self.torque_error[i] = state.dynamixel_state[i].present_current
@@ -59,7 +59,7 @@ class MotorController(object):
     def stepToRad(self,step):
         return step / 4095.0 * 2*math.pi - math.pi
 
-    def motorPub(self, joint_name, joint_angle, execute_time=2.0):
+    def motorPub(self, joint_name, joint_angle, execute_time=1.0):
         msg = JointTrajectory()
         msg.header.stamp = rospy.Time.now()
         msg.joint_names = joint_name
