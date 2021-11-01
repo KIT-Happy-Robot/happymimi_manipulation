@@ -32,7 +32,7 @@ class MotorController(object):
         rospy.Timer(rospy.Duration(0.5), self.motorAnglePub)
 
     def getMotorStateCB(self, state):
-        for i in range(6):
+        for i in range(len(state.dynamixel_state)):
             self.current_pose[i] = state.dynamixel_state[i].present_position
             self.rotation_velocity[i] = abs(state.dynamixel_state[i].present_velocity)
             self.torque_error[i] = state.dynamixel_state[i].present_current
@@ -124,7 +124,7 @@ class JointController(MotorController):
         except AttributeError:
             pass
         m2 = self.elbowConversionProcess(deg)
-        self.motorPub(['m2_elbow__joint'], [m2])
+        self.motorPub(['m2_elbow_joint'], [m2])
 
     def controlWrist(self,deg):
         try:
