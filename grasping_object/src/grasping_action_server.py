@@ -56,7 +56,7 @@ class GraspingActionServer(ManipulateArm):
 
         self.armControllerByTopic(joint_angle)
         rospy.sleep(2.5)
-        self.base_control.translateDist(0.25)
+        self.base_control.translateDist(0.3)
         rospy.sleep(1.0)
         self.base_control.translateDist(0.1, 0.1)
         rospy.sleep(1.0)
@@ -67,7 +67,7 @@ class GraspingActionServer(ManipulateArm):
         rospy.sleep(2.5)
         self.controlEndeffector(False)
         rospy.sleep(2.0)
-        self.base_control.translateDist(-0.2)
+        self.base_control.translateDist(-0.25)
         self.changeArmPose('carry')
         self.navigation_place = 'Null'
         rospy.loginfo('Finish place command\n')
