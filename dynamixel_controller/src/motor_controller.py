@@ -59,7 +59,7 @@ class MotorController(object):
     def stepToRad(self,step):
         return step / 4095.0 * 2*math.pi - math.pi
 
-    def motorPub(self, joint_name, joint_angle, execute_time=1.0):
+    def motorPub(self, joint_name, joint_angle, execute_time=0.8):
         msg = JointTrajectory()
         msg.header.stamp = rospy.Time.now()
         msg.joint_names = joint_name
@@ -196,6 +196,16 @@ class JointController(MotorController):
         deg *= -1
         step = self.degToStep(deg) + (self.origin_angle[5]-2048)
         self.setPosition(5, step)
+        '''
+        try:
+            deg = deg.data
+        except AttributeError:
+            pass
+        rad = math.radians(deg)
+        m5_rad = -1*rad + self.stepToRad(self.origin_angle[5])
+        print 'm5_rad: ', m5_rad
+        self.motorPub(['m5_neck_joint'], [m5_rad])
+        '''
 
 
 class ManipulateArm(JointController):
