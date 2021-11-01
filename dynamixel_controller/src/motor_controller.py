@@ -111,57 +111,28 @@ class JointController(MotorController):
         return m3_rad
 
     def controlShoulder(self,deg):
-        if type(deg) == type(Float64()):
+        try:
             deg = deg.data
-        deg *= self.gear_ratio[0]
-        step = self.degToStep(deg)
-        step0 = 4095 - step + (self.origin_angle[0]-2048)
-        step1 = step + (self.origin_angle[1]-2048)
-
-        thread_m0 = threading.Thread(target=self.setPosition, args=(0, step0,))
-        thread_m1 = threading.Thread(target=self.setPosition, args=(1, step1,))
-        thread_m0.start()
-        thread_m1.start()
-        rospy.sleep(0.2)
-
-        while (self.rotation_velocity[0] > 0 or self.rotation_velocity[1] > 0) and not rospy.is_shutdown():
+        except AttributeError:
             pass
-        rospy.sleep(0.5)
-        if abs(self.torque_error[0]) > 100 or abs(self.torque_error[1] > 100):
-            thread_m0 = threading.Thread(target=self.setPosition, args=(0, self.current_pose[0],))
-            thread_m1 = threading.Thread(target=self.setPosition, args=(1, self.current_pose[1],))
-            thread_m0.start()
-            thread_m1.start()
+        m0, m1 = self.shoulderConversionProcess(deg)
+        self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint'], [m0, m1])
 
     def controlElbow(self,deg):
-        if type(deg) == type(Float64()):
+        try:
             deg = deg.data
-        deg *= self.gear_ratio[2]
-        step = self.degToStep(deg) + (self.origin_angle[2]-2048)
-
-        self.setPosition(2, step)
-        rospy.sleep(0.2)
-
-        while self.rotation_velocity[2] > 0 and not rospy.is_shutdown():
+        except AttributeError:
             pass
-        rospy.sleep(0.5)
-        if abs(self.torque_error[2]) > 100:
-            self.setPosition(2, self.current_pose[2])
+        m2 = self.elbowConversionProcess(deg)
+        self.motorPub(['m2_elbow__joint'], [m2])
 
     def controlWrist(self,deg):
-        if type(deg) == type(Float64()):
+        try:
             deg = deg.data
-        deg *= self.gear_ratio[3]
-        step = self.degToStep(deg) + (self.origin_angle[3]-2048)
-
-        self.setPosition(3, step)
-        rospy.sleep(0.2)
-
-        while self.rotation_velocity[3] > 0 and not rospy.is_shutdown():
+        except AttributeError:
             pass
-        rospy.sleep(0.5)
-        if abs(self.torque_error[3]) > 100:
-            self.setPosition(3, self.current_pose[3])
+        m3 = self.wristConversionProcess(deg)
+        self.motorPub(['m3_wrist_joint'], [m3])
 
     def controlEndeffector(self,req):
         if type(req) == type(Bool()):

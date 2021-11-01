@@ -54,7 +54,7 @@ class GraspingActionServer(ManipulateArm):
         if numpy.nan in joint_angle:
             return False
 
-        self.armController(joint_angle)
+        self.armControllerByTopic(joint_angle)
         rospy.sleep(2.0)
         self.base_control.translateDist(0.25)
         rospy.sleep(1.0)
@@ -63,7 +63,7 @@ class GraspingActionServer(ManipulateArm):
 
         joint_angle = self.inverseKinematics([x, y-0.03])
         if not (numpy.nan in joint_angle):
-            self.armController(joint_angle)
+            self.armControllerByTopic(joint_angle)
         rospy.sleep(2.0)
         self.controlEndeffector(False)
         rospy.sleep(2.0)
@@ -100,7 +100,7 @@ class GraspingActionServer(ManipulateArm):
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
             return False
-        self.armController(joint_angle)
+        self.armControllerByTopic(joint_angle)
         rospy.sleep(2.5)
 
         move_range = object_centroid.x + 0.07 - x
