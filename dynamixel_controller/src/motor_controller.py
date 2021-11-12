@@ -135,8 +135,10 @@ class JointController(MotorController):
         self.motorPub(['m3_wrist_joint'], [m3])
 
     def controlEndeffector(self,req):
-        if type(req) == type(Bool()):
+        try:
             req = req.data
+        except AttributeError:
+            pass
 
         # OPEN
         if not req:
@@ -161,22 +163,13 @@ class JointController(MotorController):
         return grasp_flg
 
     def controlHead(self,deg):
-        if type(deg) == type(Float64()):
-            deg = deg.data
-        deg *= self.gear_ratio[5]
-        deg *= -1
-        step = self.degToStep(deg) + (self.origin_angle[5]-2048)
-        self.setPosition(5, step)
-        '''
         try:
             deg = deg.data
         except AttributeError:
             pass
-        rad = math.radians(deg)
-        m5_rad = -1*rad + self.stepToRad(self.origin_angle[5])
-        print 'm5_rad: ', m5_rad
-        self.motorPub(['m5_neck_joint'], [m5_rad])
-        '''
+        deg *= self.gear_ratio[5]
+        step = self.degToStep(deg) + (self.origin_angle[5]-2048)
+        self.setPosition(5, step)
 
 
 class ManipulateArm(JointController):
@@ -212,8 +205,10 @@ class ManipulateArm(JointController):
             return [numpy.nan]*3
 
     def armController(self, joint_angle):
-        if type(joint_angle) != list:
+        try:
             joint_angle = joint_angle.data
+        except AttributeError:
+            pass
         thread_shoulder = threading.Thread(target=self.controlShoulder, args=(joint_angle[0],))
         thread_elbow = threading.Thread(target=self.controlElbow, args=(joint_angle[1],))
         thread_wrist = threading.Thread(target=self.controlWrist, args=(joint_angle[2],))
