@@ -294,18 +294,30 @@ class ManipulateArm(JointController):
         rospy.wait_for_service('/detect/depth')
         endeffector_res = False
         count = 0
+        '''
         while not endeffector_res and count<2 and not rospy.is_shutdown():
             self.controlEndeffector(False)
             rospy.sleep(2.0)
             count += 1
             start_time = time.time()
             straight_line_distance = 9.99
-            while time.time()-start_time<5.0 and straight_line_distance>0.42 and not rospy.is_shutdown():
+            while time.time()-start_time<3.0 and straight_line_distance>0.42 and not rospy.is_shutdown():
                 depth_res = self.detect_depth(280, 360)
-                straight_line_distance = depth_res.centroid_point.x
+                straight_line_distance = depth_res.point.x
             rospy.sleep(0.5)
             endeffector_res = self.controlEndeffector(True)
             rospy.sleep(1.5)
+        '''
+        self.controlEndeffector(False)
+        rospy.sleep(2.0)
+        start_time = time.time()
+        straight_line_distance = 9.99
+        while time.time()-start_time<3.0 and straight_line_distance>0.42 and not rospy.is_shutdown():
+            depth_res = self.detect_depth(280, 365)
+            straight_line_distance = depth_res.point.x
+        rospy.sleep(0.5)
+        endeffector_res = self.controlEndeffector(True)
+        rospy.sleep(1.5)
 
         self.carryMode()
         self.controlHead(0)
