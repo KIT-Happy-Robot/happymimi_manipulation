@@ -116,7 +116,9 @@ class PickLuggageActionServer(GraspingActionServer):
         return self.front_laser - past_value > 0.10
 
     def startUp(self):
-        pass
+        while not rospy.is_shutdown():
+            laser = self.laser
+            print 'laser_min_index: ', laser.index(min(laser), min(laser)
         '''
         _ = self.controlEndeffector(False)
         self.changeArmPose('carry')
@@ -139,5 +141,6 @@ class PickLuggageActionServer(GraspingActionServer):
 if __name__ == '__main__':
     rospy.init_node('pick_luggage')
     p_l_action_server = PickLuggageActionServer()
-    #p_l_action_server.startUp()
+    rospy.sleep(0.5)
+    p_l_action_server.startUp()
     rospy.spin()
