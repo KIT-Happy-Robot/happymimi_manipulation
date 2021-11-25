@@ -77,7 +77,7 @@ class PickLuggageActionServer(GraspingActionServer):
             width_center = (width_min+width_max)/2
             angle = -(240-width_center)/4
         if angle == 0: return False
-        print angle
+        print 'angle: ', angle
         #self.base_control.rotateAngle(angle, 0.5)
         #rospy.sleep(3.0)
         return True
@@ -101,7 +101,7 @@ class PickLuggageActionServer(GraspingActionServer):
         print '1'
         self.turnToLuggage(req)
         print '2'
-        if front_laser > 1.5: return False
+        if self.front_laser > 1.5: return False
         past_front_laser = self.apploachLuggage()
         print '3'
 
@@ -120,13 +120,7 @@ class PickLuggageActionServer(GraspingActionServer):
         return self.front_laser - past_value > 0.10
 
     def startUp(self):
-        rate = rospy.Rate(1)
-        while not rospy.is_shutdown():
-            laser = self.laser
-            print 'laser_min_index: ', laser.index(min(laser))
-            print 'laser_min_value: ', min(laser)
-            print ''
-            rate.sleep()
+        pass
         '''
         _ = self.controlEndeffector(False)
         self.changeArmPose('carry')
