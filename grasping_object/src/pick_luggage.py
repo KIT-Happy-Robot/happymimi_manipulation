@@ -50,13 +50,16 @@ class PickLuggageActionServer(GraspingActionServer):
         self.act.start()
 
     def turnToLuggage(self, req):
+        ###
+        #req = req.data
+        ###
         if req == 'left':
             # 90〜150
             laser_left = self.laser[359:599]
             width_min = 0
             width_max = 0
             for i, dist in enumerate(laser_left):
-                if 0.9 > dist and 0.01 < dist:
+                if 1.0 > dist and 0.01 < dist:
                     if width_min == 0:
                         width_min = i
                     if width_max < i:
@@ -68,8 +71,8 @@ class PickLuggageActionServer(GraspingActionServer):
             laser_right = self.laser[119:359]
             width_min = 0
             width_max = 0
-            for i, dist in enumerate(laser_left):
-                if 0.9 > dist and 0.01 < dist:
+            for i, dist in enumerate(laser_right):
+                if 1.0 > dist and 0.01 < dist:
                     if width_min == 0:
                         width_min = i
                     if width_max < i:
@@ -77,13 +80,14 @@ class PickLuggageActionServer(GraspingActionServer):
             width_center = (width_min+width_max)/2
             angle = -(240-width_center)/4
         if angle == 0: return False
+        print 'min: ', width_min, ' max: ', width_max
         print 'angle: ', angle
-        #self.base_control.rotateAngle(angle, 0.5)
-        #rospy.sleep(3.0)
+        self.base_control.rotateAngle(angle, 0.5)
+        rospy.sleep(3.0)
         return True
 
     def apploachLuggage(self):
-        self.base_control.translateDist(self.front_laser-0.15, 0.1)
+        self.base_control.translateDist(self.front_laser-0.2, 0.1)
         rospy.sleep(2.0)
         return self.front_laser
 
@@ -120,12 +124,9 @@ class PickLuggageActionServer(GraspingActionServer):
         return self.front_laser - past_value > 0.10
 
     def startUp(self):
-        pass
-        '''
         _ = self.controlEndeffector(False)
         self.changeArmPose('carry')
         self.controlHead(0.0)
-        '''
 
     def actionPreempt(self):
         rospy.loginfo('Preempt callback')
