@@ -32,6 +32,8 @@ from base_control import BaseControl
 class PickLuggageActionServer(GraspingActionServer):
     def __init__(self):
         super(PickLuggageActionServer,self).__init__()
+        ###
+        rospy.Service('/debug/laser', StrTrg, self.turnToLuggage)
         rospy.Subscriber('/scan', LaserScan, self.laserCB)
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel_mux/input/teleop',Twist,queue_size = 1)
         self.laser = []
@@ -54,7 +56,7 @@ class PickLuggageActionServer(GraspingActionServer):
             width_min = 0
             width_max = 0
             for i, dist in enumerate(laser_left):
-                if 0.5 < dist:
+                if 0.9 > dist and 0.01 < dist:
                     if width_min == 0:
                         width_min = i
                     if width_max < i:
@@ -67,16 +69,18 @@ class PickLuggageActionServer(GraspingActionServer):
             width_min = 0
             width_max = 0
             for i, dist in enumerate(laser_left):
-                if 0.5 < dist:
+                if 0.9 > dist and 0.01 < dist:
                     if width_min == 0:
                         width_min = i
                     if width_max < i:
                         width_max = i
             width_center = (width_min+width_max)/2
             angle = -(240-width_center)/4
-        if angle == 0: return
-        self.base_control.rotateAngle(angle, 0.5)
-        rospy.sleep(3.0)
+        if angle == 0: return False
+        print angle
+        #self.base_control.rotateAngle(angle, 0.5)
+        #rospy.sleep(3.0)
+        return True
 
     def apploachLuggage(self):
         self.base_control.translateDist(self.front_laser, 0.1)
