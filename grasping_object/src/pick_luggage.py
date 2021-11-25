@@ -14,6 +14,7 @@ import actionlib
 from std_msgs.msg import Bool, Float64, String
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
+from sensor_msgs.msg import LaserScan
 
 from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.msg import *
@@ -22,105 +23,92 @@ from happymimi_recognition_msgs.srv import RecognitionCount, RecognitionCountReq
 motor_controller_path = roslib.packages.get_pkg_dir('dynamixel_controller')
 sys.path.insert(0, os.path.join(motor_controller_path, 'src/'))
 from motor_controller import ManipulateArm
+from grasping_action_server import GraspingActionServer
 
 teleop_path = roslib.packages.get_pkg_dir('happymimi_teleop')
 sys.path.insert(0, os.path.join(teleop_path, 'src/'))
 from base_control import BaseControl
 
-class GraspingActionServer(ManipulateArm):
+class PickLuggageActionServer(GraspingActionServer):
     def __init__(self):
-        super(GraspingActionServer,self).__init__()
-        rospy.Subscriber('/current_location',String,self.navigationPlaceCB)
+        super(PickLuggageActionServer,self).__init__()
+        rospy.Subscriber('/scan', LaserScan, self.laserCB)
         self.cmd_vel_pub = rospy.Publisher('/cmd_vel_mux/input/teleop',Twist,queue_size = 1)
-        self.navigation_place = 'Null'
-        self.target_place = rosparam.get_param('/location_dict')
+        self.laser = []
+        self.front_laser = 999.9
 
         self.base_control = BaseControl()
 
-        self.act = actionlib.SimpleActionServer('/manipulation/grasp',
-                                                GraspingObjectAction,
+        self.act = actionlib.SimpleActionServer('/manipulation/pick_luggage',
+                                                PickLuggageAction,
                                                 execute_cb = self.actionMain,
                                                 auto_start = False)
         self.act.register_preempt_callback(self.actionPreempt)
 
         self.act.start()
 
-    def placeMode(self):#override
-        self.base_control.translateDist(-0.15)
-        rospy.sleep(1.0)
-        y = self.target_place[self.navigation_place] + 0.14
-        #x = (y-0.78)/10+0.5
-        x = 0.5
-        joint_angle = self.inverseKinematics([x, y])
-        if numpy.nan in joint_angle:
-            return False
+    def turnToLuggage(self, req):
+        if req == 'left':
+            # 90〜150
+            laser_left = self.laser[359:599]
+            width_min = 0
+            width_max = 0
+            for i, dist in enumerate(laser_left):
+                if 0.5 < dist:
+                    if width_min == 0:
+                        width_min = i
+                    if width_max < i:
+                        width_max = i
+            width_center = (width_min+width_max)/2
+            angle = width_center/4
+        elif req == 'right':
+            # 30〜90
+            laser_right = self.laser[119:359]
+            width_min = 0
+            width_max = 0
+            for i, dist in enumerate(laser_left):
+                if 0.5 < dist:
+                    if width_min == 0:
+                        width_min = i
+                    if width_max < i:
+                        width_max = i
+            width_center = (width_min+width_max)/2
+            angle = -(240-width_center)/4
+        self.base_control.rotateAngle(rotation_angle, 0.5)
+        rospy.sleep(3.0)
 
-        self.armControllerByTopic(joint_angle)
-        rospy.sleep(2.5)
-        self.base_control.translateDist(0.3)
-        rospy.sleep(1.0)
-        self.base_control.translateDist(0.1, 0.1)
-        rospy.sleep(1.0)
-
-        joint_angle = self.inverseKinematics([x, y-0.03])
-        if not (numpy.nan in joint_angle):
-            self.armControllerByTopic(joint_angle)
-        rospy.sleep(2.5)
-        self.controlEndeffector(False)
+    def apploachLuggage(self):
+        self.base_control.translateDist(self.front_laser, 0.1)
         rospy.sleep(2.0)
-        self.base_control.translateDist(-0.25)
-        self.changeArmPose('carry')
-        self.navigation_place = 'Null'
-        rospy.loginfo('Finish place command\n')
-        return True
+        return self.front_laser
 
-    def approachObject(self,object_centroid):
-        if object_centroid.x > 1.5:
-            return False
-        elif object_centroid.x < 0.5 or object_centroid.x > 0.8:
-            move_range = (object_centroid.x-0.65)
-            if abs(move_range) < 0.2: move_range = int(move_range/abs(move_range))*0.2
-            self.base_control.translateDist(move_range)
-            rospy.sleep(4.0)
-            return False
-        else :
-            return True
-
-    def pickLuggage(self, object_centroid):
+    def pickLuggage(self, req):
         rospy.loginfo('\n----- Pick Luggage-----')
 
-        self.controlEndeffector(True)
-
         x = 0.45
-        #x = (y-0.75)/10+0.5
-        y = object_centroid.z + 0.15 + 0.03
+        y = 0.45
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
             return False
         self.armControllerByTopic(joint_angle)
         rospy.sleep(2.5)
 
-        move_range = object_centroid.x + 0.07 - x + 0.05
-        self.base_control.translateDist(move_range*0.8, 0.15)
-        rospy.sleep(0.5)
-        self.base_control.translateDist(move_range*0.2, 0.1)
-        rospy.sleep(0.5)
+        self.turnToLuggage(req)
+        past_front_laser = self.apploachLuggage()
 
-        self.controlWrist(joint_angle[2]+45.0)
-        self.base_control.translateDist(-0.4)
-
+        self.controlEndeffector(True)
+        rospy.sleep(1.0)
         self.changeArmPose('carry')
         rospy.sleep(4.0)
-        return
+        grasp_flg = checkExistence(past_front_laser)
+        return grasp_flg
 
-    def checkExistence(self):
-        countObject = rospy.ServiceProxy('/recognition/count', RecognitionCount)
-        rospy.wait_for_service('/recognition/count')
-        exist_flg = bool(countObject(RecognitionCountRequest('luggage')).num)
-        return not exist_flg
+    def laserCB(self, msg):
+        self.laser = msg.ranges
+        self.front_laser = msg.ranges[359]
 
-    def navigationPlaceCB(self,res):
-        self.navigation_place = res.data
+    def checkExistence(self, past_value):
+        return self.front_laser - past_value > 0.10
 
     def startUp(self):
         _ = self.controlEndeffector(False)
@@ -132,14 +120,11 @@ class GraspingActionServer(ManipulateArm):
         self.act.set_preempted(text = 'message for preempt')
         self.preempt_flg = True
 
-    def actionMain(self,object_centroid):
-        target_centroid = object_centroid.goal
+    def actionMain(self,req):
         grasp_result = GraspingObjectResult()
         grasp_flg = False
-        approach_flg = self.approachObject(target_centroid)
-        if approach_flg:
-            self.pickLuggage(target_centroid)
-            grasp_flg = checkExistence()
+        self.pickLuggage(req.goal)
+        grasp_flg = checkExistence()
         grasp_result.result = grasp_flg
         self.act.set_succeeded(grasp_result)
 
