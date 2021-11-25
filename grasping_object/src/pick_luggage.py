@@ -116,9 +116,13 @@ class PickLuggageActionServer(GraspingActionServer):
         return self.front_laser - past_value > 0.10
 
     def startUp(self):
+        rate = rospy.Rate(1)
         while not rospy.is_shutdown():
             laser = self.laser
-            print 'laser_min_index: ', laser.index(min(laser), min(laser)
+            print 'laser_min_index: ', laser.index(min(laser))
+            print 'laser_min_value: ', min(laser)
+            print ''
+            rate.sleep()
         '''
         _ = self.controlEndeffector(False)
         self.changeArmPose('carry')
