@@ -83,7 +83,7 @@ class PickLuggageActionServer(GraspingActionServer):
         return True
 
     def apploachLuggage(self):
-        self.base_control.translateDist(self.front_laser, 0.1)
+        self.base_control.translateDist(self.front_laser-0.15, 0.1)
         rospy.sleep(2.0)
         return self.front_laser
 
