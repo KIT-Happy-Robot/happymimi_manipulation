@@ -51,7 +51,7 @@ class PickLuggageActionServer(GraspingActionServer):
 
     def turnToLuggage(self, req):
         ###
-        #req = req.data
+        req = req.data
         ###
         if req == 'left':
             # 90〜150
