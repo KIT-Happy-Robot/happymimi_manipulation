@@ -65,6 +65,7 @@ class PickLuggageActionServer(GraspingActionServer):
                     if width_max < i:
                         width_max = i
             width_center = (width_min+width_max)/2
+            center_range = laser_left[width_center]
             angle = width_center/4
         elif req == 'right':
             # 30〜90
@@ -78,10 +79,18 @@ class PickLuggageActionServer(GraspingActionServer):
                     if width_max < i:
                         width_max = i
             width_center = (width_min+width_max)/2
+            center_range = laser_right[width_center]
             angle = -(240-width_center)/4
         if angle == 0: return False
         print 'min: ', width_min, ' max: ', width_max
         print 'angle: ', angle
+        ###
+        luggage_x = center_range*math.cos(math.radians(angle))
+        luggage_y = center_range*math.sin(math.radians(angle))
+        lidar_to_tread = 0.10
+        rotate_angle = math.atan(luggage_y/(luggage_x+lidar_to_tread))
+        print 'rotate_angle: ', rotate_angle
+        ###
         self.base_control.rotateAngle(angle, 0.5)
         rospy.sleep(3.0)
         return True
