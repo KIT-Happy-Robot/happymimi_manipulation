@@ -74,7 +74,8 @@ class PickLuggageActionServer(GraspingActionServer):
                         width_max = i
             width_center = (width_min+width_max)/2
             angle = -(240-width_center)/4
-        self.base_control.rotateAngle(rotation_angle, 0.5)
+        if angle == 0: return
+        self.base_control.rotateAngle(angle, 0.5)
         rospy.sleep(3.0)
 
     def apploachLuggage(self):
@@ -85,7 +86,7 @@ class PickLuggageActionServer(GraspingActionServer):
     def pickLuggage(self, req):
         rospy.loginfo('\n----- Pick Luggage-----')
 
-        x = 0.45
+        x = 0.35
         y = 0.45
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
@@ -93,14 +94,18 @@ class PickLuggageActionServer(GraspingActionServer):
         self.armControllerByTopic(joint_angle)
         rospy.sleep(2.5)
 
+        print '1'
         self.turnToLuggage(req)
+        print '2'
+        if front_laser > 1.5: return False
         past_front_laser = self.apploachLuggage()
+        print '3'
 
         self.controlEndeffector(True)
         rospy.sleep(1.0)
         self.changeArmPose('carry')
         rospy.sleep(4.0)
-        grasp_flg = checkExistence(past_front_laser)
+        grasp_flg = self.checkExistence(past_front_laser)
         return grasp_flg
 
     def laserCB(self, msg):
@@ -111,9 +116,12 @@ class PickLuggageActionServer(GraspingActionServer):
         return self.front_laser - past_value > 0.10
 
     def startUp(self):
+        pass
+        '''
         _ = self.controlEndeffector(False)
         self.changeArmPose('carry')
         self.controlHead(0.0)
+        '''
 
     def actionPreempt(self):
         rospy.loginfo('Preempt callback')
@@ -123,14 +131,13 @@ class PickLuggageActionServer(GraspingActionServer):
     def actionMain(self,req):
         grasp_result = GraspingObjectResult()
         grasp_flg = False
-        self.pickLuggage(req.goal)
-        grasp_flg = checkExistence()
+        grasp_flg = self.pickLuggage(req.goal)
         grasp_result.result = grasp_flg
         self.act.set_succeeded(grasp_result)
 
 
 if __name__ == '__main__':
     rospy.init_node('pick_luggage')
-    grasping_action_server= GraspingActionServer()
-    grasping_action_server.startUp()
+    p_l_action_server = PickLuggageActionServer()
+    #p_l_action_server.startUp()
     rospy.spin()

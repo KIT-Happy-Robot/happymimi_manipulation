@@ -9,7 +9,7 @@ from std_msgs.msg import Bool, String, Float64
 from happymimi_manipulation_msgs.msg import PickLuggageAction, PickLuggageGoal
 from happymimi_msgs.srv import StrTrg
 
-class PickLuggageAction(object):
+class GraspingAction(object):
     def __init__(self):
         pass
 
@@ -34,15 +34,17 @@ def actionMain(request):
     head_pub = rospy.Publisher('/servo/head',Float64,queue_size=1)
     rospy.sleep(0.2)
 
+    '''
     endeffector_pub.publish(False)
     head_pub.publish(30.0)
     rospy.sleep(2.0)
+    '''
 
     grasp_flg = False
 
-    PL = PickLuggageAction()
+    GA = GraspingAction()
 
-    grasp_flg = PL.pickLuggage(request.data)
+    grasp_flg = GA.pickLuggage(request.data)
     return grasp_flg
 
 
