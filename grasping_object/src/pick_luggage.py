@@ -51,7 +51,7 @@ class PickLuggageActionServer(GraspingActionServer):
 
     def turnToLuggage(self, req):
         ###
-        req = req.data
+        #req = req.data
         ###
         if req == 'left':
             # 90〜150
@@ -59,28 +59,29 @@ class PickLuggageActionServer(GraspingActionServer):
             width_min = 0
             width_max = 0
             for i, dist in enumerate(laser_left):
-                if 1.0 > dist and 0.01 < dist:
+                print dist
+                if 1.35 > dist and 0.01 < dist:
                     if width_min == 0:
                         width_min = i
                     if width_max < i:
                         width_max = i
             width_center = (width_min+width_max)/2
             center_range = laser_left[width_center]
-            angle = width_center/4
+            angle = width_center/4 - 25
         elif req == 'right':
             # 30〜90
             laser_right = self.laser[119:359]
             width_min = 0
             width_max = 0
             for i, dist in enumerate(laser_right):
-                if 1.0 > dist and 0.01 < dist:
+                if 1.35 > dist and 0.01 < dist:
                     if width_min == 0:
                         width_min = i
                     if width_max < i:
                         width_max = i
             width_center = (width_min+width_max)/2
             center_range = laser_right[width_center]
-            angle = -(240-width_center)/4
+            angle = -(240-width_center)/4 + 12
         if angle == 0: return False
         print 'min: ', width_min, ' max: ', width_max
         print 'angle: ', angle
@@ -91,12 +92,12 @@ class PickLuggageActionServer(GraspingActionServer):
         rotate_angle = math.degrees(math.atan(luggage_y/(luggage_x+lidar_to_tread)))
         print 'rotate_angle: ', rotate_angle
         ###
-        self.base_control.rotateAngle(angle, 0.5)
+        self.base_control.rotateAngle(rotate_angle, 0.5)
         rospy.sleep(3.0)
         return True
 
     def apploachLuggage(self):
-        self.base_control.translateDist(self.front_laser-0.2, 0.1)
+        self.base_control.translateDist(self.front_laser-0.18, 0.15)
         rospy.sleep(2.0)
         return self.front_laser
 
@@ -104,7 +105,7 @@ class PickLuggageActionServer(GraspingActionServer):
         rospy.loginfo('\n----- Pick Luggage-----')
 
         x = 0.35
-        y = 0.45
+        y = 0.44
         joint_angle = self.inverseKinematics([x, y])
         if numpy.nan in joint_angle:
             return False
