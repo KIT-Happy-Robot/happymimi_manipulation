@@ -88,7 +88,7 @@ class PickLuggageActionServer(GraspingActionServer):
         luggage_x = center_range*math.cos(math.radians(angle))
         luggage_y = center_range*math.sin(math.radians(angle))
         lidar_to_tread = 0.10
-        rotate_angle = math.atan(luggage_y/(luggage_x+lidar_to_tread))
+        rotate_angle = math.degrees(math.atan(luggage_y/(luggage_x+lidar_to_tread)))
         print 'rotate_angle: ', rotate_angle
         ###
         self.base_control.rotateAngle(angle, 0.5)
