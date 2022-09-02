@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*
 
 import rospy
@@ -60,6 +60,9 @@ class MotorController(object):
         return step / 4095.0 * 2*math.pi - math.pi
 
     def motorPub(self, joint_name, joint_angle, execute_time=0.8):
+	#PythonにC＋＋使えんの？ｂｙ奥瀬
+        #動体であればlidar_imageに描写する,ver2
+        # cv::circle(lidar_image, cv::Point(object[i].image_pos_.x, object[i].image_pos_.y), 3, cv::Scalar(200,200,0), -1, CV_AA);
         msg = JointTrajectory()
         msg.header.stamp = rospy.Time.now()
         msg.joint_names = joint_name
@@ -90,24 +93,24 @@ class JointController(MotorController):
     def shoulderConversionProcess(self, deg):
         deg *= self.gear_ratio[0]
         rad = math.radians(deg)
-        print 'rad: ', rad
+        print('rad: ', rad)
         #m0_rad = math.pi - rad + self.stepToRad(self.origin_angle[0])
         m0_rad = -1*rad + self.stepToRad(self.origin_angle[0])
         m1_rad = rad + self.stepToRad(self.origin_angle[1])
-        print 'm0_origin', self.stepToRad(self.origin_angle[0])
-        print 'm1_origin', self.stepToRad(self.origin_angle[1])
+        print('m0_origin', self.stepToRad(self.origin_angle[0]))
+        print('m1_origin', self.stepToRad(self.origin_angle[1]))
         return m0_rad, m1_rad
 
     def elbowConversionProcess(self, deg):
         rad = math.radians(deg)
         m2_rad = rad + self.stepToRad(self.origin_angle[2])
-        print 'm2_origin', self.stepToRad(self.origin_angle[2])
+        print('m2_origin', self.stepToRad(self.origin_angle[2]))
         return m2_rad
 
     def wristConversionProcess(self, deg):
         rad = math.radians(deg)
         m3_rad = rad + self.stepToRad(self.origin_angle[3])
-        print 'm3_origin', self.stepToRad(self.origin_angle[3])
+        print('m3_origin', self.stepToRad(self.origin_angle[3]))
         return m3_rad
 
     def controlShoulder(self,deg):
@@ -159,7 +162,7 @@ class JointController(MotorController):
             rospy.sleep(0.5)
             #self.setPosition(4, self.current_pose[4])
         grasp_flg = self.torque_error[4] > 30
-        print grasp_flg
+        print(grasp_flg)
         return grasp_flg
 
     def controlHead(self,deg):
@@ -223,9 +226,10 @@ class ManipulateArm(JointController):
         m2 = self.elbowConversionProcess(joint_angle[1])
         m3 = self.wristConversionProcess(joint_angle[2])
 
-        print 'm0, m1, m2, m3'
-        print m0, m1, m2, m3
-        print map(math.degrees, [m0, m1, m2, m3])
+        print('m0, m1, m2, m3')
+        print(m0, m1, m2, m3)
+	#要検証
+        print(map(math.degrees, [m0, m1, m2, m3]))
         self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint'], [m0, m1, m2, m3])
 
     def armControlService(self, coordinate):
@@ -234,9 +238,9 @@ class ManipulateArm(JointController):
         except AttributeError:
             pass
         joint_angle = self.inverseKinematics(coordinate)
-        print ''
-        print 'joint_angle'
-        print joint_angle
+        print('')
+        print('joint_angle')
+        print(joint_angle)
         if numpy.nan in joint_angle:
             return False
         #self.armController(joint_angle)

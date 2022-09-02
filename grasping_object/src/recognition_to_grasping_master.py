@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*
 
 import rospy
@@ -34,7 +34,7 @@ class RecognitionAction(object):
 
         act.wait_for_result()
         result = act.get_result()
-        print result.result_flg
+        print(result.result_flg)
 
         return result.result_flg, result.centroid_point
 
