@@ -228,9 +228,14 @@ class ManipulateArm(JointController):
 
         print('m0, m1, m2, m3')
         print(m0, m1, m2, m3)
+        #print(m0, m1)
 	#要検証
         print(map(math.degrees, [m0, m1, m2, m3]))
+        #print(map(math.degrees, [m0, m1]))
         self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint'], [m0, m1, m2, m3])
+        #self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint'], [m0, m1])
+
+
 
     def armControlService(self, coordinate):
         try:
@@ -276,6 +281,8 @@ class ManipulateArm(JointController):
         wrist_param = 0
         #self.armController([shoulder_param, elbow_param, wrist_param])
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
+        #self.armControllerByTopic([shoulder_param])
+
 
     def carryMode(self):
         shoulder_param = -85
