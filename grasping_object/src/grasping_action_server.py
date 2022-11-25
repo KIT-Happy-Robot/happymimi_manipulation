@@ -90,7 +90,7 @@ class GraspingActionServer(ManipulateArm):
 
         x = 0.475
         #x = (y-0.75)/10+0.5
-        y = object_centroid.z + 0.03
+        y = object_centroid.z# + 0.03 #高さ微調整はここでやってました
         '''
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05
@@ -103,7 +103,8 @@ class GraspingActionServer(ManipulateArm):
         self.armControllerByTopic(joint_angle)
         rospy.sleep(2.5)
 
-        move_range = object_centroid.x + 0.07 - x
+        move_range = object_centroid.x + 0.13 - (x+0.075)
+        #直進距離の微調整は下の0.8と0.2の倍率を変えてました
         self.base_control.translateDist(move_range*0.8, 0.15)
         rospy.sleep(0.5)
         self.base_control.translateDist(move_range*0.2, 0.1)
