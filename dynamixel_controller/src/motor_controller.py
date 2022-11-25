@@ -38,8 +38,8 @@ class MotorController(object):
             self.torque_error[i] = state.dynamixel_state[i].present_current
 
     def motorAnglePub(self, event):
-        deg_origin_angle = map(self.stepToDeg, self.origin_angle)
-        deg_current_pose = map(self.stepToDeg, self.current_pose)
+        deg_origin_angle = list(map(self.stepToDeg, self.origin_angle))
+        deg_current_pose = list(map(self.stepToDeg, self.current_pose))
         current_deg_list = [x-y for (x,y) in zip(deg_current_pose, deg_origin_angle)]
         current_deg_list = [round(x, 1) for x in current_deg_list]
         current_deg_list[2] *= -1
@@ -201,7 +201,7 @@ class ManipulateArm(JointController):
             elbow_angle = math.atan((y-l1*math.sin(shoulder_angle))/(x-l1*math.cos(shoulder_angle)))-shoulder_angle
             wrist_angle = -1*(shoulder_angle + elbow_angle)
             angle_list = [shoulder_angle, elbow_angle, wrist_angle]
-            angle_list = map(math.degrees, angle_list)
+            angle_list = list(map(math.degrees, angle_list))
             return angle_list
         except ValueError:
             rospy.loginfo('can not move arm.')
@@ -222,6 +222,7 @@ class ManipulateArm(JointController):
         thread_shoulder.start()
 
     def armControllerByTopic(self, joint_angle):
+        print(f'YUSUKE, {joint_angle}')
         m0, m1 = self.shoulderConversionProcess(joint_angle[0])
         m2 = self.elbowConversionProcess(joint_angle[1])
         m3 = self.wristConversionProcess(joint_angle[2])

@@ -52,6 +52,7 @@ class GraspingAction(object):
         rospy.loginfo('send goal')
         goal = GraspingObjectGoal()
         goal.goal = target_centroid
+        print(goal)
         act.send_goal(goal, feedback_cb = self.graspingFeedback)
         act.wait_for_result()
         result = act.get_result()
