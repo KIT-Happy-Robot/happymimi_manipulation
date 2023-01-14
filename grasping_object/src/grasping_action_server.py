@@ -78,11 +78,12 @@ class GraspingActionServer(ManipulateArm):
             return False
         elif object_centroid.x < 0.5 or object_centroid.x > 0.8:
             move_range = (object_centroid.x-0.65)
-            if abs(move_range) < 0.2: move_range = int(move_range/abs(move_range))*0.2
+            if abs(move_range) < 0.2:
+                move_range = int(move_range/abs(move_range))*0.2
             self.base_control.translateDist(move_range)
             rospy.sleep(4.0)
             return False
-        else :
+        else:
             return True
 
     def graspObject(self, object_centroid):
@@ -90,7 +91,7 @@ class GraspingActionServer(ManipulateArm):
 
         x = 0.475
         #x = (y-0.75)/10+0.5
-        y = object_centroid.z# + 0.03 #高さ微調整はここでやってました
+        y = object_centroid.z - 0.03  #高さ微調整はここでやってました
         '''
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05

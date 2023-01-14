@@ -222,7 +222,6 @@ class ManipulateArm(JointController):
         thread_shoulder.start()
 
     def armControllerByTopic(self, joint_angle):
-        print(f'YUSUKE, {joint_angle}')
         m0, m1 = self.shoulderConversionProcess(joint_angle[0])
         m2 = self.elbowConversionProcess(joint_angle[1])
         m3 = self.wristConversionProcess(joint_angle[2])
