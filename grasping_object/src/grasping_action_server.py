@@ -91,7 +91,7 @@ class GraspingActionServer(ManipulateArm):
 
         x = 0.475
         #x = (y-0.75)/10+0.5
-        y = object_centroid.z - 0.03  #高さ微調整はここでやってました
+        y = object_centroid.z + 0.0  #高さ微調整はここでやってました
         '''
         if self.navigation_place == 'Null':
             y = object_centroid.z + 0.05
@@ -145,6 +145,7 @@ class GraspingActionServer(ManipulateArm):
         self.preempt_flg = True
 
     def actionMain(self,object_centroid):
+        print("actionMain")
         target_centroid = object_centroid.goal
         grasp_result = GraspingObjectResult()
         grasp_flg = False

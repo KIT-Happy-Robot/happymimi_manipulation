@@ -84,10 +84,10 @@ class MotorController(object):
 class JointController(MotorController):
     def __init__(self):
         super(JointController,self).__init__()
-        rospy.Subscriber('/servo/shoulder',Float64,self.controlShoulder)
-        rospy.Subscriber('/servo/elbow',Float64,self.controlElbow)
-        rospy.Subscriber('/servo/wrist',Float64,self.controlWrist)
-        rospy.Subscriber('/servo/endeffector',Bool,self.controlEndeffector)
+        #rospy.Subscriber('/servo/shoulder',Float64,self.controlShoulder)
+        #rospy.Subscriber('/servo/elbow',Float64,self.controlElbow)
+        #rospy.Subscriber('/servo/wrist',Float64,self.controlWrist)
+        #rospy.Subscriber('/servo/endeffector',Bool,self.controlEndeffector)
         rospy.Subscriber('/servo/head',Float64,self.controlHead)
 
     def shoulderConversionProcess(self, deg):
@@ -271,9 +271,6 @@ class ManipulateArm(JointController):
         elif cmd == 'place':
             res = self.placeMode()
             return res
-        elif cmd == 'point':
-            res = self.pointMode()
-            return True
         else :
             rospy.loginfo('No such change arm command.')
             return False
@@ -357,13 +354,6 @@ class ManipulateArm(JointController):
         self.setPosition(4, self.origin_angle[4])
         rospy.sleep(0.5)
         self.carryMode()
-
-    def pointMode(self):
-        shoulder_param = -85
-        elbow_param = 90
-        wrist_param = 0
-        #self.armController([shoulder_param, elbow_param, wrist_param])
-        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
 
     def placeMode(self):
         #現時点では家具の高さを予めプログラムに打ち込む必要があり、
