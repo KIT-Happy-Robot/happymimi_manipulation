@@ -6,10 +6,10 @@ Elbow_Wrist_Length: 0.17
 Wrist_Wrist_Length: 017
 Wrist_Endeffector_Length: 0.10
 
-#Gen2                                  ee
+#Gen2  
 #Origin_Angle: [930, 3170, 2065, 2065, 2150, 1794]
-#Gen2.5        0    1     2wr   3wr   4wr   5nec  ee
-Origin_Angle: [930, 3170, 2065, 2596, 2150, 1794, 26]
+#Gen2.5
+Origin_Angle: [930, ]
 #Gen3
 #Origin_Angle: [830, 3336, 2065, 2065, 2150, 1794]
 

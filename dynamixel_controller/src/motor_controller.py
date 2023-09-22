@@ -87,6 +87,7 @@ class JointController(MotorController):
         rospy.Subscriber('/servo/shoulder',Float64,self.controlShoulder)
         rospy.Subscriber('/servo/elbow',Float64,self.controlElbow)
         rospy.Subscriber('/servo/wrist',Float64,self.controlWrist)
+        rospy.Subscriber('/servo/wrist_twist', Float64, self.controlWristTwist)
         rospy.Subscriber('/servo/endeffector',Bool,self.controlEndeffector)
         rospy.Subscriber('/servo/head',Float64,self.controlHead)
 
@@ -113,6 +114,12 @@ class JointController(MotorController):
         print('m3_origin', self.stepToRad(self.origin_angle[3]))
         return m3_rad
 
+    def wristTwistConversionProcess(self, deg):
+        rad = math.radians(deg)
+        m4_rad = rad + self.stepToRad(self.origin[4])
+        print('m4_origin', self.stepToRad(self.origin_angle[4]))
+        return m4_rad
+
     def controlShoulder(self,deg):
         try:
             deg = deg.data
@@ -137,6 +144,14 @@ class JointController(MotorController):
         m3 = self.wristConversionProcess(deg)
         self.motorPub(['m3_wrist_joint'], [m3])
 
+    def controlWristTwist(self, deg):
+        try:
+            deg = deg.data
+        except AttributeError:
+            pass
+        m4 = self.wristConversionProcess(deg)
+        self.motorPub(['m4_wrist_joint'], [m4])
+
     def controlEndeffector(self,req):
         try:
             req = req.data
@@ -146,12 +161,12 @@ class JointController(MotorController):
         # OPEN
         if not req:
             self.setCurrent(4, 200)
-            self.setPosition(4, self.origin_angle[4] + 200)  # 200はあとで消す by kanazawa
+            self.setPosition(4, self.origin_angle[4]) #+ 200)  # 200はあとで消す by kanazawa
             rospy.sleep(0.2)
             return True
 
         # CLOSE
-        goal_position = self.origin_angle[4] + 450
+        goal_position = self.origin_angle[4] + 1500
         self.setCurrent(4, 200)
         self.setPosition(4, goal_position)
         rospy.sleep(0.2)
@@ -189,6 +204,7 @@ class ManipulateArm(JointController):
         l0 = self.arm_specification['Ground_Arm_Height']
         l1 = self.arm_specification['Shoulder_Elbow_Length']
         l2 = self.arm_specification['Elbow_Wrist_Length']
+        l3 = self.arm_specification['Wrist_Wrist_Length']
         l3 = self.arm_specification['Wrist_Endeffector_Length']
         x -= l3
         y -= l0
