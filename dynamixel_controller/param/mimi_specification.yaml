@@ -4,7 +4,7 @@ Ground_Arm_Height: 0.78
 Shoulder_Elbow_Length: 0.22
 Elbow_Wrist_Length: 0.17
 Wrist_Wrist_Length: 017
-Wrist_Endeffector_Length: 0.10
+Wrist_Endeffector_Length: 0.17
 
 #Gen2                                  ee
 #Origin_Angle: [930, 3170, 2065, 2065, 2150, 1794]

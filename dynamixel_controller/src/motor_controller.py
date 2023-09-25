@@ -88,6 +88,7 @@ class JointController(MotorController):
         rospy.Subscriber('/servo/elbow',Float64,self.controlElbow)
         rospy.Subscriber('/servo/wrist',Float64,self.controlWrist)
         rospy.Subscriber('/servo/wrist_twist', Float64, self.controlWristTwist)
+        rospy.Subscriber('/servo/wrist_twist', Bool, self
         rospy.Subscriber('/servo/endeffector',Bool,self.controlEndeffector)
         rospy.Subscriber('/servo/head',Float64,self.controlHead)
 
@@ -161,7 +162,7 @@ class JointController(MotorController):
         # OPEN
         if not req:
             self.setCurrent(4, 200)
-            self.setPosition(4, self.origin_angle[4]) #+ 200)  # 200はあとで消す by kanazawa
+            self.setPosition(4, self.origin_angle[4]) #+ 200)  # 200はあとで消す by kanazawa###
             rospy.sleep(0.2)
             return True
 
@@ -204,7 +205,7 @@ class ManipulateArm(JointController):
         l0 = self.arm_specification['Ground_Arm_Height']
         l1 = self.arm_specification['Shoulder_Elbow_Length']
         l2 = self.arm_specification['Elbow_Wrist_Length']
-        l3 = self.arm_specification['Wrist_Wrist_Length']
+        #l3 = self.arm_specification['Wrist_Wrist_Length']###
         l3 = self.arm_specification['Wrist_Endeffector_Length']
         x -= l3
         y -= l0
@@ -241,16 +242,16 @@ class ManipulateArm(JointController):
         m0, m1 = self.shoulderConversionProcess(joint_angle[0])
         m2 = self.elbowConversionProcess(joint_angle[1])
         m3 = self.wristConversionProcess(joint_angle[2])
+        m4 = self.wristTwistConversionProcess(joint_angle[3])
 
-        print('m0, m1, m2, m3')
-        print(m0, m1, m2, m3)
+        print('m0, m1, m2, m3, m4')
+        print(m0, m1, m2, m3, m4)
         #print(m0, m1)
-	#要検証
-        print(map(math.degrees, [m0, m1, m2, m3]))
+	      #要検証
+        print(map(math.degrees, [m0, m1, m2, m3, m4]))
         #print(map(math.degrees, [m0, m1]))
-        self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint'], [m0, m1, m2, m3])
+        self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint', 'm4_wrist_joint'], [m0, m1, m2, m3, m4])
         #self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint'], [m0, m1])
-
 
 
     def armControlService(self, coordinate):
