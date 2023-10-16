@@ -37,6 +37,9 @@ class MotorController(object):
             self.rotation_velocity[i] = abs(state.dynamixel_state[i].present_velocity)
             self.torque_error[i] = state.dynamixel_state[i].present_current
 
+    def getCurrentDeg(self, joint):
+        self.current_pose[0]###
+    
     def motorAnglePub(self, event):
         deg_origin_angle = list(map(self.stepToDeg, self.origin_angle))
         deg_current_pose = list(map(self.stepToDeg, self.current_pose))
@@ -142,6 +145,10 @@ class JointController(MotorController):
             deg = deg.data
         except AttributeError:
             pass
+        if deg > 115.0:
+            deg = 115.0
+        elif self.current_pose[0]: ###
+            pass
         m3 = self.wristConversionProcess(deg)
         self.motorPub(['m3_wrist_joint'], [m3])
 
@@ -150,6 +157,10 @@ class JointController(MotorController):
             deg = deg.data
         except AttributeError:
             pass
+        if deg > 180.0:
+            deg = 180.0
+        elif deg < -180.0:
+            deg = -180.0
         m6 = self.wristTwistConversionProcess(deg)
         self.motorPub(['m6_wrist_joint'], [m6])
 
@@ -160,19 +171,21 @@ class JointController(MotorController):
             pass
         #m6 = self.wristTwistConversionProcess(deg)
         #self.motorPub(['m6_wrist_joint'], [m6])
-        # horizontal
-        if not req:
-            #self.setPosition(6, self.origin_angle[6])
-            self.setPosition(6, self.origin_angle[6])
-            rospy.sleep(0.3)
-            #return True
-        
+       
+        print(self.origin_angle[6])
         # vertical
-        else:
-            goal_position = self.origin_angle[6] + 1000
+        if req:
+            goal_position = self.origin_angle[6] + 00
             #self.setCurrent(6, 200)
             self.setPosition(6, goal_position)
             rospy.sleep(0.2)
+        
+        # horizontal
+        else:
+            #self.setPosition(6, self.origin_angle[6])
+            self.setPosition(6, self.origin_angle[6])
+            rospy.sleep(0.3)
+            return True
         
         while self.rotation_velocity[6] > 0 and not rospy.is_shutdown():
             pass
@@ -198,17 +211,17 @@ class JointController(MotorController):
             return True
 
         # CLOSE
-        goal_position = self.origin_angle[4] + 1500
-        self.setCurrent(4, 200)
+        goal_position = self.origin_angle[4] + 1900
+        self.setCurrent(4, 150)
         self.setPosition(4, goal_position)
         rospy.sleep(0.2)
 
-        while self.rotation_velocity[4] > 0 and not rospy.is_shutdown():
+        while self.rotation_velocity[4] > 0 and self.torque_error[4] <= 200 and not rospy.is_shutdown():
             pass
-        else:
-            rospy.sleep(0.5)
+        #else:
+            #rospy.sleep(1.0)
             #self.setPosition(4, self.current_pose[4])
-        grasp_flg = self.torque_error[4] > 30
+        grasp_flg = self.torque_error[4] > 50
         print(grasp_flg)
         return grasp_flg
 
@@ -322,6 +335,9 @@ class ManipulateArm(JointController):
         elif cmd == 'point':
             res = self.pointMode()
             return True
+        elif cmd == 'navigation':
+            res = self.navigationMode()
+            return True
         else :
             rospy.loginfo('No such change arm command.')
             return False
@@ -335,10 +351,9 @@ class ManipulateArm(JointController):
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param, wrist_twist_param])
         #self.armControllerByTopic([shoulder_param])
 
-
     def carryMode(self):
         shoulder_param = -85
-        elbow_param = 100
+        elbow_param = 90
         wrist_param = 90
         wrist_twist_param = 0
         #self.armController([shoulder_param, elbow_param, wrist_param])
@@ -422,13 +437,12 @@ class ManipulateArm(JointController):
         #その情報をobject_grasperに格納しているのでそちらでplaceの関数をオーバーライドしています。
         pass
 
-    def naviMode(self):
-            shoulder_param = -85
-            elbow_param = 30
-            wrist_param = 50
-            #wrist_twist_param = 0
-            #self.armController([shoulder_param, elbow_param, wrist_param])
-            self.armControllerByTopic([shoulder_param, elbow_param, wrist_param, 0])
+    def navigationMode(self):
+        shoulder_param = -85
+        elbow_param = 30
+        wrist_param = 50
+        wrist_twist_param = 0
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param, wrist_twist_param])
 
 
 
