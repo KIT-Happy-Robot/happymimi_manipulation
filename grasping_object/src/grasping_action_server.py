@@ -159,5 +159,6 @@ class GraspingActionServer(ManipulateArm):
 if __name__ == '__main__':
     rospy.init_node('grasping_action_server')
     grasping_action_server= GraspingActionServer()
+    rospy.sleep(0.5)
     grasping_action_server.startUp()
     rospy.spin()

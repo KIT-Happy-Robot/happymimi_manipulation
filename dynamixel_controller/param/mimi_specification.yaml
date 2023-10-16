@@ -1,16 +1,16 @@
 Ground_RealSense_Height: 1.05
 Ground_Neck_Height: 0.95
 Ground_Arm_Height: 0.78
-Shoulder_Elbow_Length: 0.22
+Shoulder_Elbow_Length: 0.25
 Elbow_Wrist_Length: 0.17
-Wrist_Wrist_Length: 017
-Wrist_Endeffector_Length: 0.17
+Wrist_Wrist_Length: 0.14
+Wrist_Endeffector_Length: 0.07
 
 #Gen2                                  ee
 #Origin_Angle: [930, 3170, 2065, 2065, 2150, 1794]
-#Gen2.5        0    1     2wr   3wr   4wr   5nec  ee
-Origin_Angle: [930, 3170, 2065, 2596, 2150, 1794, 26]
+#Gen2.5        0    1     2wr   3wr   4ee   5nec  6wr
+Origin_Angle: [800, 3300, 2065, 2065, 2400, 1794, 1]
 #Gen3
 #Origin_Angle: [830, 3336, 2065, 2065, 2150, 1794]
 
-Gear_Ratio: [2.1, 2.1, 1, 1, 1, 1]
+Gear_Ratio: [2.1, 2.1, 1, 1, 1, 1, 1]
