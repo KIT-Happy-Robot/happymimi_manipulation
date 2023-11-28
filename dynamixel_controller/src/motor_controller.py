@@ -283,18 +283,22 @@ class ManipulateArm(JointController):
         thread_shoulder.start()
 
     def armControllerByTopic(self, joint_angle):
-        m0, m1 = self.shoulderConversionProcess(joint_angle[0])
-        m2 = self.elbowConversionProcess(joint_angle[1])
-        m3 = self.wristConversionProcess(joint_angle[2])
-        m4 = self.wristTwistConversionProcess(joint_angle[3])
+        try:
+            m0, m1 = self.shoulderConversionProcess(joint_angle[0])
+            m2 = self.elbowConversionProcess(joint_angle[1])
+            m3 = self.wristConversionProcess(joint_angle[2])
+            #m4 = self.wristTwistConversionProcess(joint_angle[3])
+        except IndexError: 
+            print(Erroe)
 
-        print('m0, m1, m2, m3','m4')
-        print(m0, m1, m2, m3, m4)
+        print('m0, m1, m2, m3, ') #'m4')
+        print(m0, m1, m2, m3)  #, m4)
         #print(m0, m1)
 	      #要検証
-        print(map(math.degrees, [m0, m1, m2, m3, m4]))
+        print(map(math.degrees, [m0, m1, m2, m3])) #, m4]))
         #print(map(math.degrees, [m0, m1]))
-        self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint', 'm6_wrist_joint'], [m0, m1, m2, m3, m4])
+        self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint', 'm2_elbow_joint', 'm3_wrist_joint'], [m0, m1, m2, m3])  
+              #, 'm6_wrist_joint'], [m0, m1, m2, m3, m4])
         #self.motorPub(['m0_shoulder_left_joint', 'm1_shoulder_right_joint'], [m0, m1])
 
 
@@ -426,7 +430,7 @@ class ManipulateArm(JointController):
         self.carryMode()
 
     def pointMode(self):
-        shoulder_param = -85
+        shoulder_param = -90
         elbow_param = 90
         wrist_param = 0
         #self.armController([shoulder_param, elbow_param, wrist_param])
@@ -438,9 +442,9 @@ class ManipulateArm(JointController):
         pass
 
     def navigationMode(self):
-        shoulder_param = -85
-        elbow_param = 30
-        wrist_param = 50
+        shoulder_param = -90
+        elbow_param = 0
+        wrist_param = 65
         wrist_twist_param = 0
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param, wrist_twist_param])
 

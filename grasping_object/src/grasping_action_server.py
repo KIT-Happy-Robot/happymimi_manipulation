@@ -136,6 +136,8 @@ class GraspingActionServer(ManipulateArm):
 
     def startUp(self):
         _ = self.controlEndeffector(False)
+        #self.changeArmPose('navigation')
+        #rospy.sleep(1.5)
         self.changeArmPose('carry')
         self.controlHead(0.0)
 

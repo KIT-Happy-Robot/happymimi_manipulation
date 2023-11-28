@@ -9,7 +9,7 @@ Wrist_Endeffector_Length: 0.07
 #Gen2                                  ee
 #Origin_Angle: [930, 3170, 2065, 2065, 2150, 1794]
 #Gen2.5        0    1     2wr   3wr   4ee   5nec  6wr
-Origin_Angle: [800, 3300, 2065, 2065, 2400, 1794, 1]
+Origin_Angle: [750, 3350, 2100, 2100, 2400, 1794, 26]
 #Gen3
 #Origin_Angle: [830, 3336, 2065, 2065, 2150, 1794]
 
