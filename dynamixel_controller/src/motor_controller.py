@@ -272,6 +272,15 @@ class ManipulateArm(JointController):
         elif cmd == 'place':
             res = self.placeMode()
             return res
+        elif cmd == 'crane_up':
+            res = self.craneUpMode()
+            return True
+        elif cmd == 'crane_down':
+            res = self.craneDownMode()
+            return True
+        elif cmd == 'navigation':
+            res = self.navigationMode()
+            return True
         else :
             rospy.loginfo('No such change arm command.')
             return False
@@ -360,6 +369,28 @@ class ManipulateArm(JointController):
         #現時点では家具の高さを予めプログラムに打ち込む必要があり、
         #その情報をobject_grasperに格納しているのでそちらでplaceの関数をオーバーライドしています。
         pass
+
+    def craneUpMode(self):
+        shoulder_param = 45.0
+        elbow_param = -95
+        wrist_param = 40
+        #self.armController([shoulder_param, elbow_param, wrist_param])
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
+        
+    def craneDownMode(self):
+        shoulder_param = 0.0
+        elbow_param = -45
+        wrist_param = 0
+        #self.armController([shoulder_param, elbow_param, wrist_param])
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
+
+    def navigationMode(self):
+        shoulder_param = -90
+        elbow_param = 0
+        wrist_param = 65
+        wrist_twist_param = 0
+        self.armControllerByTopic([shoulder_param, elbow_param, wrist_param, wrist_twist_param])
+
 
 
 if __name__ == '__main__':
