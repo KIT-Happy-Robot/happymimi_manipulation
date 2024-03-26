@@ -7,7 +7,7 @@ import numpy
 import math
 import threading
 import time
-from std_msgs.msg import Bool, Float64, Float64MultiArray
+from std_msgs.msg import Bool, Float64, Float64MultiArray, Empty
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from dynamixel_workbench_msgs.msg import DynamixelStateList
 from dynamixel_workbench_msgs.srv import DynamixelCommand
@@ -146,7 +146,7 @@ class JointController(MotorController):
         # OPEN
         if not req:
             self.setCurrent(4, 200)
-            self.setPosition(4, self.origin_angle[4] + 200)  # 200はあとで消す by kanazawa
+            self.setPosition(4, self.origin_angle[4] )
             rospy.sleep(0.2)
             return True
 
@@ -181,8 +181,10 @@ class ManipulateArm(JointController):
         rospy.Service('/servo/arm', StrTrg, self.changeArmPose)
         rospy.Service('/servo/debug_arm', ArmControl, self.armControlService)
         self.detect_depth = rospy.ServiceProxy('/detect/depth', PositionEstimator)
+        self.param_sub = rospy.Subscriber("/dxl_update_param", Empty, self.updateParam)
         self.arm_specification = rosparam.get_param('/mimi_specification')
 
+    def updateParam(self, _): self.arm_specification = rosparam.get_param('/mimi_specification')
     def inverseKinematics(self, coordinate):
         x = coordinate[0]
         y = coordinate[1]
@@ -294,7 +296,7 @@ class ManipulateArm(JointController):
             return False
 
     def originMode(self):
-        list = rospy.get_param("/mimi_specification/Origin_Pose")
+        list = self.arm_specification["Origin_Pose"]
         shoulder_param = list[0]
         elbow_param = list[1]
         wrist_param = list[2] 
@@ -303,7 +305,8 @@ class ManipulateArm(JointController):
         #self.armControllerByTopic([shoulder_param])
 
     def carryMode(self):
-        list = rospy.get_param("/mimi_specification/Carry_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Carry_Pose"]
         shoulder_param = list[0] #-33.0
         elbow_param = list[1]
         wrist_param = list[2] 
@@ -313,7 +316,8 @@ class ManipulateArm(JointController):
     def recieveMode(self):
         self.controlHead(25)
         rospy.sleep(0.5)
-        list = rospy.get_param("/mimi_specification/Recieve_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Recieve_Pose"]
         shoulder_param = list[0] #-33.0
         elbow_param = list[1]
         wrist_param = list[2] 
@@ -355,7 +359,8 @@ class ManipulateArm(JointController):
         return endeffector_res
 
     def giveMode(self):
-        list = rospy.get_param("/mimi_specification/Give_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Give_Pose"]
         shoulder_param = list[0] #-33.0
         elbow_param = list[1]
         wrist_param = list[2] 
@@ -377,7 +382,8 @@ class ManipulateArm(JointController):
         self.carryMode()
 
     def pointMode(self):
-        list = rospy.get_param("/mimi_specification/Point_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Point_Pose"]
         shoulder_param = list[0]
         elbow_param = list[1]
         wrist_param = list[2] 
@@ -390,7 +396,8 @@ class ManipulateArm(JointController):
         pass
     
     def craneUpMode(self):
-        list = rospy.get_param("/mimi_specification/Crane_Up_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Crane_Up_Pose"]
         shoulder_param = list[0] #-33.0
         elbow_param = list[1]
         wrist_param = list[2] 
@@ -398,7 +405,8 @@ class ManipulateArm(JointController):
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
         
     def craneDownMode(self):
-        list = rospy.get_param("/mimi_specification/Crane_Down_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Crane_Down_Pose"]
         shoulder_param = list[0] #-33.0
         elbow_param = list[1]
         wrist_param = list[2] #-40
@@ -406,21 +414,24 @@ class ManipulateArm(JointController):
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
     
     def armLookFloorMode(self):
-        list = rospy.get_param("/mimi_specification/Look_Floor_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["Look_Floor_Pose"]
         shoulder_param = list[0]#-85.0
         elbow_param = list[1] #0
         wrist_param = list[2] #45
         #self.armController([shoulder_param, elbow_param, wrist_param])
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
     def armTableGraspMode(self):
-        list = rospy.get_param("/mimi_specification/Table_Grasp_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["TU_Grasp_Pose"]
         shoulder_param = list[0]
         elbow_param = list[1]
         wrist_param = list[2] 
         #self.armController([shoulder_param, elbow_param, wrist_param])
         self.armControllerByTopic([shoulder_param, elbow_param, wrist_param])
     def armTableCraneupMode(self):
-        list = rospy.get_param("/mimi_specification/TU_Craneup_Pose")
+        #dict = rospy.get_param("/mimi_specification")
+        list = self.arm_specification["TU_Craneup_Pose"]
         shoulder_param = list[0]
         elbow_param = list[1]
         wrist_param = list[2]
