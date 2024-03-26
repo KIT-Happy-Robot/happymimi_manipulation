@@ -53,10 +53,12 @@ class GraspingAction(object):
         goal = GraspingObjectGoal()
         goal.goal = target_centroid
         print(goal)
-        act.send_goal(goal, feedback_cb = self.graspingFeedback)
+        act.send_goal(goal=goal, feedback_cb = self.graspingFeedback)
+        print('koko!')
         act.wait_for_result()
+        print('result wait')
         result = act.get_result()
-
+        print(result)
         return result.result
 
 def actionMain(request):

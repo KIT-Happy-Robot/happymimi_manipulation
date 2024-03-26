@@ -136,7 +136,7 @@ class GraspingActionServer(ManipulateArm):
 
     def startUp(self):
         _ = self.controlEndeffector(False)
-        self.changeArmPose('carry')
+        self.changeArmPose('arm_look_floor')
         self.controlHead(0.0)
 
     def actionPreempt(self):
