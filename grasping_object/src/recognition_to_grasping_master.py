@@ -65,7 +65,7 @@ def actionMain(request):
     rospy.sleep(0.2)
 
     endeffector_pub.publish(False)
-    head_pub.publish(25.0)
+    head_pub.publish(10.0)
     rospy.sleep(2.0)
 
     recognition_flg = True
