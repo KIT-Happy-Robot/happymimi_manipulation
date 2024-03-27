@@ -43,6 +43,7 @@ mimiに搭載されている各Dynamixelモータの角度を出力するパブ�
   
 **注意**  
 `data`には-30～40[deg]の範囲で入力してください。  
+マイナスは前に傾く Max -45 Min 0（Happy Mooi)
 
 ---
 ### Change Arm Pose
